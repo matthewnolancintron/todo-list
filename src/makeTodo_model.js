@@ -1,4 +1,8 @@
 export {makeTodo};
+// * todos are objects that are created
+// * dynamically
+// * this module is used for data only
+// * not DOM/GUI/View
 const functionality = {
     //
     //updates existing step
