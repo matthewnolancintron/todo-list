@@ -8,6 +8,64 @@
     <script src="./main.js"></script>
 </head>
 <body>
-    
+    <header>
+        <h1>todo-y</h1>
+      </header>
+        <div id='main-content'> 
+        <div id='todoLists-area'>
+            <h2 class="todoListsHeader">TodoLists</h2>
+              <button class='carousel_button left_arrow '></button>
+            <ul id='todo-lists'>
+              <li class='todo-list'>
+                <label for='todo-list_1'>todo list: project 1</label>
+                <input type="radio" id='todo-list_1' class="carousel_indicator" name="todo-lists" value="list name">
+              </li>
+              <li class='todo-list'>
+                <label for='todo-list_2'>todo list: project 2</label>
+                <input type="radio" id='todo-list_2' class="carousel_indicator" name="todo-lists" value="list name">
+              </li>
+              <li class='todo-list'>
+                <label for='todo-list_3'>todo list: project 3</label>
+                <input type="radio" id='todo-list_3' class="carousel_indicator" name="todo-lists" value="list name">
+              </li>
+              <li class='todo-list'>
+                <label for='todo-list_4'>todo list: project 4</label>
+                <input type="radio" id='todo-list_4' class="carousel_indicator" name="todo-lists" value="list name">
+              </li>
+              <li class='todo-list'>
+                <label for='todo-list_5'>todo list: project 5</label>
+                <input type="radio" id='todo-list_5' class="carousel_indicator" name="todo-lists" value="list name">
+              </li>
+         
+            </ul> 
+            <button class='carousel_button right_arrow'></button>
+            <div class="todo-lists-options" data-tooltip="list options">
+              <button class='list-options'>
+                 <div id="myDropdown" class="dropdown-content">
+                   <a href="#">rename list</a>
+                   <a href="#">add new list</a>
+                   <a href="#">delete list</a>
+                </div>
+              </button>
+            </div>
+        </div>
+          <!-- add title, due date priority system with colors -->
+          <!-- add ability to expand individual todos to see/edit details -->   
+          <div id='todos-area'>
+            <ol class="todo-items">
+              <li class="todo-item">todo 1</li>
+              <li class="todo-item">todo 2</li>
+              <li class="todo-item">todo 3</li>
+              <li class="todo-item">todo 4</li>
+              <li class="todo-item">todo 5</li>
+              <li class="todo-item">todo 6</li>
+              <li class="todo-item">todo 7</li>
+              <li class="todo-item">todo 8</li>
+              <li class="todo-item">todo 9</li>
+              <li class="todo-item">todo 10</li>
+            </ol>
+          </div>
+        </div>
+      <footer>footer todo: find use for this other than style...</footer>
 </body>
 </html>

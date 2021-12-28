@@ -39,27 +39,12 @@
  * controller will be index.js and the user
  * I think?
  */
-
- /**
-  * View:
-  * -----
-  * user interface should be able to
- *  view all projects/lists,
- *  view all todos in each project
- *  just title duedate could change color for different
- *  priorities,
- *  expand single todo to see/edit details,
-    delete todo.
-
-    when user first opens the app there should
-    be default project or todo list
-    where all todos are put.
-*/
 //npx webpack or npx webpack --watch
 import './styles.css'
 import {makeTodo} from './makeTodo_model.js';
+import {View} from './view.js';
 
-
+let view = View();
 
 let todo = makeTodo(
     {
@@ -73,5 +58,6 @@ let todo = makeTodo(
         livesOnList: 'default list'
     },
 );
+
 todo.addStep('step3');
 console.log(todo.steps);
