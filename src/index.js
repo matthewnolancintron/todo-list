@@ -37,7 +37,7 @@
  * view modules for GUI/DOM manipulation
  * 
  * controller will be index.js and the user
- * I think?
+ * 
  */
 //npx webpack or npx webpack --watch
 import './styles.css'
