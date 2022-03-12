@@ -20,193 +20,196 @@
  -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Todo-list</title>
-    <script src="./main.js"></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo-list</title>
+  <script src="./main.js"></script>
 </head>
+
 <body>
-    <header>
-        <h1>todo</h1>
-      </header>
-        <div id='main-content'> 
-        <div id='todoLists-area'>
-            <h2 class="todoListsHeader">TodoLists</h2>
-              <button class='carousel_button left_arrow '></button> 
-            <ul id='todo-lists'>
-              <!-- first todo list is active by default -->
-              <li class='todo-list todo-list_activeList' data-default = 'true'>
-                <div class="todoItemSizingContainer">
-                  <p class="todoList_title">default list</p>
-                </div>
-              </li>
-            </ul> 
-            <button class='carousel_button right_arrow'></button>
-         
-            <div class="addAndRemoveList_buttons_container">
-              <button id="addNewList" class="listOption_button">add</button>
-              <button id="deleteList" class="listOption_button">delete</button>
-              <button id="renameList" class="listOption_button">rename</button>
-            </div>
-  
+  <header>
+    <h1>todo</h1>
+  </header>
+  <div id='main-content'>
+    <div id='todoLists-area'>
+      <h2 class="todoListsHeader">TodoLists</h2>
+      <button class='carousel_button left_arrow '></button>
+      <ul id='todo-lists'>
+        <!-- first todo list is active by default -->
+        <li class='todo-list todo-list_activeList' data-default='true'>
+          <div class="todoItemSizingContainer">
+            <p class="todoList_title">default list</p>
           </div>
-        <!-- add mark up to the todo's -->
-          <!-- add ability to expand individual todos to see/edit details -->   
-          <!--slidable details view for each todo-->
-          <!-- 
+        </li>
+      </ul>
+      <button class='carousel_button right_arrow'></button>
+
+      <div class="addAndRemoveList_buttons_container">
+        <button id="addNewList" class="listOption_button">add</button>
+        <button id="deleteList" class="listOption_button">delete</button>
+        <button id="renameList" class="listOption_button">rename</button>
+      </div>
+
+    </div>
+    <!-- add mark up to the todo's -->
+    <!-- add ability to expand individual todos to see/edit details -->
+    <!--slidable details view for each todo-->
+    <!-- 
             style feature: user scrolls down
             color of todo area background
             shifts and morphs/updates
           -->
 
-          <!-- should be able to update or edit field on todo -->
-          <div id='todos-area'>
-            <div class="todo-item todo-maker">
+    <!-- should be able to update or edit field on todo -->
+    <div id='todos-area'>
+      <div class="todo-item todo-maker">
 
-              <div class="add_todo_container">
-                <button class="add_Todo" type="button">+ add todo</button>
+        <div class="add_todo_container">
+          <button class="add_Todo" type="button">+ add todo</button>
+        </div>
+
+        <div class="addTodoForm_container">
+          <form action="" class="addTodoForm_inactive">
+            <div class="makeTodoInputGroup">
+
+              <div class="makeTodoInputGroupSub_1">
+                <!-- 1. name task with a title-->
+                <div class="makeTodoInputGroupSub_2">
+                  <label for="todoTitle_form">title</label>
+                  <input name="todoTitle_form" id="todoTitle_form" type="text" placeholder="name the todo">
+                </div>
+
+                <!-- 2. due date -->
+                <div class="makeTodoInputGroupSub_2">
+                  <label for="dueDate_form">due</label>
+                  <input id="dueDate_form" name="dueDate_form" title="add a due date" type="date">
+                </div>
+
+                <!--3. place in list-->
+                <div class="makeTodoInputGroupSub_2">
+                  <label for="placeInList_form">place in list</label>
+                  <select name="placeInList_form" id="placeInList_form">
+                    <option value="0">default list</option>
+                  </select>
+                </div>
               </div>
-
-              <div class="addTodoForm_container">
-                <form action="" class="addTodoForm_inactive">
-                  <div class="makeTodoInputGroup">
-
-                    <div class="makeTodoInputGroupSub_1">
-                      <!-- 1. name task with a title-->
-                      <div class="makeTodoInputGroupSub_2">
-                        <label for="todoTitle_form">title</label>
-                        <input name="todoTitle_form" id="todoTitle_form" type="text" placeholder="name the todo">
-                      </div>
-
-                      <!-- 2. due date -->
-                      <div class="makeTodoInputGroupSub_2">
-                        <label for="dueDate_form">due</label>
-                        <input id="dueDate_form" name="dueDate_form" title="add a due date" type="date">                    
-                      </div>
-
-                      <!--3. place in list-->
-                      <div class="makeTodoInputGroupSub_2">
-                        <label for="placeInList_form">place in list</label>
-                        <select name="placeInList_form" id="placeInList_form">
-                          <option value="0">default list</option>
-                        </select>
-                      </div>
-                    </div>
-                    </div>
-  
-                   <!-- 4. repeat -->
-                   <div class="makeTodoInputGroup">
-                    <div class="repeat_container">                      
-                      <div class="repeat_option_container">                        
-                        <div class="repeat_option_sub_container">
-                          <label for="">repeat</label>
-                          <input placeholder="num" min="1" name="" id="times" type="number">
-                          <select name="" id="repeat_options">
-                            <option value="days">days</option>
-                            <option value="weeks">weeks</option>
-                            <option value="months">months</option>
-                            <option value="years">years</option>
-                          </select>
-                        </div>
-
-
-                        <ul class="dayOfTheWeekSelector">
-                        
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>Su</p>
-                              </div>
-                            </label>
-                          </li>
-      
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>Mo</p>
-                              </div>
-                            </label>
-                          </li>
-      
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>Tu</p>
-                              </div>
-                            </label>
-                          </li>
-      
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>We</p>
-                              </div>
-                            </label>
-                          </li>
-      
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>Th</p>
-                              </div>
-                            </label>
-                          </li>
-      
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>Fr</p>
-                              </div>
-                            </label>
-                          </li>
-      
-                          <li>
-                            <label>
-                              <input type="checkbox" name="">
-                              <div class="icon-box">
-                                <p>Sa</p>
-                              </div>
-                            </label>
-                          </li>
-                        </ul>
-                      </div>
-                   <!-- toogle repeat -->
-                    <span id="toggleRepeat" class="toggle_repeat_OFF">OFF</span>
-                    </div>
-                   </div>
-                
-                  <!-- 5. confirm/cancel todo buttons. -->
-                  <div class="makeTodoInputGroup">
-                    <div class="confirmOrCancel_todo_container">
-                      <button class="confirmOrCancel_Todo" type="button">confirm</button>
-                      or
-                      <button class="confirmOrCancel_Todo" type="button">cancel</button>
-                    </div>
-                  </div>
-
-                </form>
-    
-
-              </div>
-
-
             </div>
 
+            <!-- 4. repeat -->
+            <div class="makeTodoInputGroup">
+              <div class="repeat_container">
+                <div class="repeat_option_container">
+                  <div class="repeat_option_sub_container">
+                    <label for="">repeat</label>
+                    <input placeholder="num" min="1" name="" id="times" type="number">
+                    <select name="" id="repeat_options">
+                      <option value="days">days</option>
+                      <option value="weeks">weeks</option>
+                      <option value="months">months</option>
+                      <option value="years">years</option>
+                    </select>
+                  </div>
 
-            <ol class="todo-items">
-              
-            </ol>
-            
-          </div>
+
+                  <ul class="dayOfTheWeekSelector">
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>Su</p>
+                        </div>
+                      </label>
+                    </li>
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>Mo</p>
+                        </div>
+                      </label>
+                    </li>
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>Tu</p>
+                        </div>
+                      </label>
+                    </li>
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>We</p>
+                        </div>
+                      </label>
+                    </li>
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>Th</p>
+                        </div>
+                      </label>
+                    </li>
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>Fr</p>
+                        </div>
+                      </label>
+                    </li>
+
+                    <li>
+                      <label>
+                        <input type="checkbox" name="">
+                        <div class="icon-box">
+                          <p>Sa</p>
+                        </div>
+                      </label>
+                    </li>
+                  </ul>
+                </div>
+                <!-- toogle repeat -->
+                <span id="toggleRepeat" class="toggle_repeat_OFF">OFF</span>
+              </div>
+            </div>
+
+            <!-- 5. confirm/cancel todo buttons. -->
+            <div class="makeTodoInputGroup">
+              <div class="confirmOrCancel_todo_container">
+                <button class="confirmOrCancel_Todo" type="button">confirm</button>
+                or
+                <button class="confirmOrCancel_Todo" type="button">cancel</button>
+              </div>
+            </div>
+
+          </form>
+
+
         </div>
-      <footer>footer todo: find use for this other than style...</footer>
+
+
+      </div>
+
+
+      <ol class="todo-items">
+
+      </ol>
+
+    </div>
+  </div>
+  <footer>footer todo: find use for this other than style...</footer>
 </body>
+
 </html>

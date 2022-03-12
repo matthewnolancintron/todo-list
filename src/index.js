@@ -41,8 +41,8 @@
  */
 //npx webpack or npx webpack --watch
 import './styles.css'
-import {makeTodo} from './makeTodo_model.js';
-import {View} from './view.js';
+import {makeTodo} from './data model scripts/makeTodo_model.js';
+import {View} from './view scripts/view.js';
 
 let view = View();
 
