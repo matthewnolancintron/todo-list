@@ -15,6 +15,26 @@ import { addEventToConfirmTodoButton } from './addEventToConfirmTodoButton_view.
 //uuid
 const { v4: uuidv4 } = require('uuid');
 
+/**
+ * testing application looking for thing to fix
+ * 
+ * things to do next:
+ *  -separate data(local storage) from view 
+ *    move any local stoarge releated tasks and to data scrips rename the scripts
+ *    and updata the imports
+ *  -orchestrate view scrips in index.js
+ *    possible delete view.js or find a different use for it
+ *    while calling modules from view scripts within index.js
+ *    also call modules from data scripts and handle passing 
+ *    information back and forth between model and view when needed  
+ *  -data persiests:
+ *     configure application to pick up where the user left off by checking
+ *     local storage and then updating application state accordingly
+ * 
+ *  after completing the above this project is completed for now move
+ *  on to the next steps in the TOP
+ */
+
 function View() {
   document.addEventListener('DOMContentLoaded', () => {
     //Global variables:
