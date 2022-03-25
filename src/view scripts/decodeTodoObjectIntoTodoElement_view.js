@@ -1,8 +1,8 @@
 export { decodeTodoObjectIntoTodoElement };
+import {deleteTodoFromList} from './deleteTodoFromList_view.js';
 
 function decodeTodoObjectIntoTodoElement(todoObjectData) {
     console.log(todoObjectData, 'todoObjectData : decode');
-
     let todoElement = document.createElement('li');
     todoElement.classList.add("todo-item");
 
