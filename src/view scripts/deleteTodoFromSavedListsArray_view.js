@@ -5,7 +5,7 @@ function deleteTodoFromSavedListsArray(todoToDelete, indexOfListToDeleteFrom = l
     let placementOfTodoToDelete;
     
     //
-    let savedLists = JSON.parse(localStorage.get('savedLists'));
+    let savedLists = JSON.parse(localStorage.getItem('savedLists'));
 
     //find the placement of the todo to delete in the savedLists
     savedLists[indexOfListToDeleteFrom][1].forEach((x, index) => {

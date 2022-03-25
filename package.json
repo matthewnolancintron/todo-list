@@ -23,6 +23,7 @@
   "dependencies": {
     "css-loader": "^6.5.1",
     "save-dev": "^0.0.1-security",
-    "style-loader": "^3.3.1"
+    "style-loader": "^3.3.1",
+    "uuid": "^8.3.2"
   }
 }

@@ -36,6 +36,7 @@ function getAddTodoFormData(addTodoForm) {
         todoWeeklyRepeatOptions,
         todoRepeatOnOrOffData
     ];
+    console.log(formData,'formData')
 
 
 

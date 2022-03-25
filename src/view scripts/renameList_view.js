@@ -12,7 +12,6 @@
      * and add an input for entering a name
      */
      function renameList(todoList) {
-        //console.log(todoList, '000')
         let titleTextInput = document.createElement('input');
         titleTextInput.type = "text";
         titleTextInput.classList.add("todoList_titleTextInput");

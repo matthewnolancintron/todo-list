@@ -9,6 +9,9 @@ import { handleTextInputStateChanges } from './handleTextInputStateChanges_view.
 import { updateListInViewIndex } from './updateListInViewIndex_view.js'
 
 
+//uuid
+const {v4 : uuidv4} = require('uuid');
+
 function addEventToAddNewListButton() {
   console.log(document.getElementById('todo-lists'));
 
@@ -37,6 +40,9 @@ function addEventToAddNewListButton() {
     let todoListItem = document.createElement("li");
     todoListItem.classList.add("todo-list");
 
+    //add uuid to the id of the todoListItem
+    todoListItem.id = uuidv4();
+
     //pass todo list item to function to add 
     //the event listner for handling active list
     addActiveListEventToList(todoListItem);
@@ -47,7 +53,7 @@ function addEventToAddNewListButton() {
 
     todoListItem = renameList(todoListItem);
 
-    //save newly create todo list to savedLists array
+    //save newly create todo list to savedLists array in local storage
     updateSavedLists(todoListItem, 'newList');
 
     //adding todo list to dom

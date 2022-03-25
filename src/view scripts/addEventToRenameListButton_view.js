@@ -4,7 +4,7 @@ import{getTodoListTitle} from './getTodoListTitle_view.js';
 import{setTodoListTitle} from './setTodoListTitle_view.js';
 import{updatePlaceInListFormFieldOnListRename} from './updatePlaceInListFormFieldOnListRename_view.js';
 
-function addEventToRenameListButton(listInViewIndex){
+function addEventToRenameListButton(){
     //rename a list
     /**
      * fix: when renaming lists |  style issue:
@@ -21,8 +21,11 @@ function addEventToRenameListButton(listInViewIndex){
      */
      let renameListButton = document.querySelector("#renameList");
      renameListButton.addEventListener('click', (e) => {
-       let todoLists = document.querySelector('#todo-lists');
- 
+      //get list inview index from local storage
+      let listInViewIndex = localStorage.getItem("listInViewIndex");
+
+      let todoLists = document.querySelector('#todo-lists');
+      
        let renamedList = renameList(todoLists.children[listInViewIndex]);
  
        let textInputForTheRenamedList = renamedList.children[0].children[0];

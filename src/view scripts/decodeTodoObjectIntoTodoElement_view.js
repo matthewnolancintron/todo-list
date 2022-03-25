@@ -1,69 +1,52 @@
-export{buildTodoWithAddTodoFormData};
-import { updateMoveTodoToList } from './updateMoveTodoToList_view.js';
-import {deleteTodoFromList} from './deleteTodoFromList_view.js';
-import { updateTodoInSavedListsArray } from './updateTodoInSavedListsArray_view.js';
+export { decodeTodoObjectIntoTodoElement };
 
+function decodeTodoObjectIntoTodoElement(todoObjectData) {
+    console.log(todoObjectData, 'todoObjectData : decode');
 
-//uuid
-const {v4 : uuidv4} = require('uuid');
+    let todoElement = document.createElement('li');
+    todoElement.classList.add("todo-item");
 
-/**
- * builds a todo element based on the form data
- * present when the user pressed confirm
- * and returns the todo 
- */
-function buildTodoWithAddTodoFormData(formData) {
-    console.log(formData, 'building a todo');
-
-    let todoListItem = document.createElement('li');
-    todoListItem.classList.add("todo-item");
-
-    /**
-     * add uuid to each todo using a data attribute of uuid
-     * need for storing in local storage
-     * 
-     * get from dom via:
-     *  document.querySelector("[data-uuid='uuid from local storages savedLists array']");
-     */
-     todoListItem.dataset.uuid = uuidv4();
+    todoElement.dataset.uuid = todoObjectData.uuid;
 
     //buliding mark as complete on todo
-    let todoListItemIsComplete = document.createElement('input');
-    todoListItemIsComplete.setAttribute('type', 'checkbox');
-    todoListItemIsComplete.setAttribute('id', 'markTodoComplete');
+    let todoElementIsComplete = document.createElement('input');
+    todoElementIsComplete.setAttribute('type', 'checkbox');
+    todoElementIsComplete.setAttribute('id', 'markTodoComplete');
 
-    todoListItemIsComplete.addEventListener('change', (e) => {
+    todoElementIsComplete.addEventListener('change', (e) => {
         //if target checked
         if (e.target.checked) {
             //for now just delete the todo
             // could add feature to move todo to
             // completed todo list later.
-            setTimeout(function () { deleteTodoFromList(todoListItem); }, '1000');
+            setTimeout(function () { deleteTodoFromList(todoElement); }, '1000');
         }
-    })
+    });
 
-    let todoListItemTitle = document.createElement('p');
-    todoListItemTitle.classList.add("todo-item_title");
-    todoListItemTitle.textContent = "Title: " + formData[0].value;
+    let todoElementTitle = document.createElement('p');
+    todoElementTitle.classList.add("todo-item_title");
+    todoElementTitle.textContent = todoObjectData.title;
 
-    let todoListItemDueDate = document.createElement('p');
-    todoListItemDueDate.classList.add("todo-item_dueDate");
-    todoListItemDueDate.textContent = "Due: " + formData[1].value;
+    let todoElementDueDate = document.createElement('p');
+    todoElementDueDate.classList.add("todo-item_dueDate");
+    todoElementDueDate.textContent = todoObjectData.dueDate;
 
-    let todoListItemRepeat = document.createElement('p');
-    todoListItemRepeat.classList.add("todo-item_repeat");
+    let todoElementRepeat = document.createElement('p');
+    todoElementRepeat.classList.add("todo-item_repeat");
+    todoElementRepeat.textContent = todoObjectData.repeat;
 
-    let todoListItemDeleteTodoButton = document.createElement('button');
-    todoListItemDeleteTodoButton.textContent = 'delete';
-    todoListItemDeleteTodoButton.addEventListener('click', () => {
-        deleteTodoFromList(todoListItem);
+
+    let todoElementDeleteTodoButton = document.createElement('button');
+    todoElementDeleteTodoButton.textContent = 'delete';
+    todoElementDeleteTodoButton.addEventListener('click', () => {
+        deleteTodoFromList(todoElement);
     });
 
     //
-    let todoListItemExpandButton = document.createElement('button');
-    todoListItemExpandButton.textContent = "expand todo";
-    todoListItemExpandButton.classList.add("expandTodoButton");
-    todoListItemExpandButton.addEventListener('click', (e) => {
+    let todoElementExpandButton = document.createElement('button');
+    todoElementExpandButton.textContent = "expand todo";
+    todoElementExpandButton.classList.add("expandTodoButton");
+    todoElementExpandButton.addEventListener('click', (e) => {
         //get todo item element to work on
         let todoItem = e.target.parentElement;
 
@@ -565,240 +548,11 @@ function buildTodoWithAddTodoFormData(formData) {
              * replace collapse and save with expand
              */
             collapseTodoButon.replaceWith(expandTodoButton);
-
-            //update todo in savedLists array
-            updateTodoInSavedListsArray(todoListItem);
-
         });
 
 
     });
 
-
-    console.log(formData[5], 'repeat');
-    //code for handling the repeat option text
-    if (formData[6].textContent == "ON" && formData[3].value > 0) {
-        //console.log('repeat on', formData[5].textContent);
-        //console.log('is num times', formData[2]);
-        //console.log('is repeat options', formData[3]);
-
-        switch (formData[4].value) {
-            case 'days':
-                if (formData[3].value == 1) {
-                    todoListItemRepeat.textContent = `Repeat: daily`;
-                } else {
-                    //console.log(formData[2], 'datacheck');
-                    todoListItemRepeat.textContent = `Repeat: every ${formData[3].value} days`;
-                }
-                break;
-            case 'weeks':
-                //boolean values for the days of the week checkboxes
-                // to be used in conditional for forming the repeat phrase
-                let isSunChecked;
-                let isMonChecked;
-                let isTueChecked;
-                let isWedChecked;
-                let isThuChecked;
-                let isFriChecked;
-                let isSatChecked;
-
-                //used to store the days checked if any
-                let daysChecked = [];
-
-                //check which checkBox are set to on
-                formData[5].forEach((day, index, array) => {
-                    //used to see what days are checked
-                    switch (index) {
-                        case 0:
-                            //check if sun is checked
-                            isSunChecked = array[index].checked
-
-                            break;
-                        case 1:
-                            //check if mon is checked
-                            isMonChecked = array[index].checked
-                            break;
-                        case 2:
-                            //check if tue is checked
-                            isTueChecked = array[index].checked
-                            break;
-                        case 3:
-                            //check if wed is checked
-                            isWedChecked = array[index].checked
-                            break;
-                        case 4:
-                            //check if thu is checked
-                            isThuChecked = array[index].checked
-                            break;
-                        case 5:
-                            //check if fri is checked
-                            isFriChecked = array[index].checked
-                            break;
-                        case 6:
-                            //check if sat is checked
-                            isSatChecked = array[index].checked
-                            break;
-                        default:
-                            break;
-                    }
-                });
-
-                //add the specific days to the
-                //dayschecked array
-                if (isSunChecked) {
-                    daysChecked.push('sun');
-                }
-
-                if (isMonChecked) {
-                    daysChecked.push('mon');
-                }
-
-                if (isTueChecked) {
-                    daysChecked.push('tue');
-                }
-
-                if (isWedChecked) {
-                    daysChecked.push('wed');
-                }
-
-                if (isThuChecked) {
-                    daysChecked.push('thu');
-                }
-
-                if (isFriChecked) {
-                    daysChecked.push('fri');
-                }
-
-                if (isSatChecked) {
-                    daysChecked.push('sat');
-                }
-
-                //set to true if all days are checked
-                let isAllDaysChecked = Boolean(
-                    isSunChecked &&
-                    isMonChecked &&
-                    isTueChecked &&
-                    isWedChecked &&
-                    isThuChecked &&
-                    isFriChecked &&
-                    isSatChecked
-                );
-
-                //set to true if at least one day is checked
-                let isAnyDayCheck = Boolean(
-                    isSunChecked ||
-                    isMonChecked ||
-                    isTueChecked ||
-                    isWedChecked ||
-                    isThuChecked ||
-                    isFriChecked ||
-                    isSatChecked
-                );
-
-                let isWeekDaysOnlyChecked = Boolean(
-                    !(isSatChecked && isSunChecked) &&
-                    (isMonChecked &&
-                        isTueChecked &&
-                        isWedChecked &&
-                        isThuChecked &&
-                        isFriChecked)
-                );
-
-                let isWeekendOnlyChecked = Boolean(
-                    !(
-                        isMonChecked ||
-                        isTueChecked ||
-                        isWedChecked ||
-                        isThuChecked ||
-                        isFriChecked
-                    ) &&
-                    (isSunChecked &&
-                        isSatChecked)
-                );
-
-                //form the days checked into a phrase
-                let daysCheckedPhrase = '';
-                if (daysChecked.length == 1) {
-                    daysCheckedPhrase = `${daysChecked[0]}`;
-                } else if (daysChecked.length == 2) {
-                    daysCheckedPhrase = daysChecked.join(' and ');
-                } else if (daysChecked.length > 2 && !(isAllDaysChecked)) {
-                    daysCheckedPhrase = daysChecked.slice(0, -1).join(',') + ` and ${daysChecked[daysChecked.length - 1]} `;
-                }
-
-                //
-                if (isWeekDaysOnlyChecked) {
-                    daysCheckedPhrase = "weekdays";
-                }
-
-                //
-                if (isWeekendOnlyChecked) {
-                    daysCheckedPhrase = "weekends";
-                }
-
-                //plural and singular 
-                if (formData[3].value == 1) {
-                    console.log(formData[3].value, 'singular');
-                    //singular
-                    if (isAllDaysChecked) {
-                        todoListItemRepeat.textContent = "Repeat: weekly";
-                    } else if (isAnyDayCheck) {
-                        /**
-                        * if any configuration of the checkboxes are set
-                        * to on sentence structure should be the following
-                        * Repeat: weekly on (days selected) 
-                        * example: sun and sat
-                        * Repeat: weekly on sun and sat/ sun, sat, mon and tue
-                        */
-                        todoListItemRepeat.textContent = `Repeat: Weekly on ${daysCheckedPhrase} `;
-                    }
-                }
-
-                if (formData[3].value > 1) {
-                    //plural
-                    if (isAllDaysChecked) {
-                        todoListItemRepeat.textContent = `Repeat: every ${formData[3].value} weeks`;
-                    } else if (isAnyDayCheck) {
-                        /** 
-                         * if any configuration of the checkboxes are set
-                         * to on sentence structure should be the following
-                         * if numtimes > 1
-                         * Repeat: every numtimes weeks on sat/ sun, sat, mon and tue
-                         */
-                        todoListItemRepeat.textContent = `Repeat: every ${formData[3].value} weeks on ${daysCheckedPhrase}`;
-                    }
-                }
-                break;
-            case 'months':
-                //plural singular
-                if (formData[3].value == 1) {
-                    //singular
-                    todoListItemRepeat.textContent = 'Repeat: monthly';
-                } else if (formData[3].value > 1) {
-                    //plural
-                    todoListItemRepeat.textContent = `Repeat: every ${formData[3].value} months`;
-                }
-                break;
-            case 'years':
-                //plural singular
-                if (formData[3].value == 1) {
-                    //singular
-                    todoListItemRepeat.textContent = 'Repeat: yearly';
-                } else if (formData[3].value > 1) {
-                    //plural
-                    todoListItemRepeat.textContent = `Repeat: every ${formData[3].value} years`;
-                }
-                break;
-            default:
-                break;
-        }
-
-    } else {
-        //user did not select repeat
-        todoListItemRepeat.textContent = 'repeat: off'
-    }
-
-    console.log(todoListItemRepeat.textContent, 'check value');
 
     let placeInList = document.getElementById('placeInList_form');
     console.log(placeInList, 'placeInList');
@@ -808,8 +562,17 @@ function buildTodoWithAddTodoFormData(formData) {
     moveTodoToList.name = "placeInList_todo";
     moveTodoToList.classList.add('placeInList_todo');
 
-    //set value or option that will be shown
-    moveTodoToList.value = placeInList.value;
+    /**
+     * in the case of moving a todo to a new list need to update
+     * need to update the place in list option to the new active liss
+     */
+
+    let indexOfActiveList = localStorage.getItem('indexOfActiveListInSavedLists');
+    console.log(indexOfActiveList, 'active index');
+
+    //update move to another list option's state to be set to active list.
+    moveTodoToList.value = indexOfActiveList;
+
 
     //add event listner
     moveTodoToList.addEventListener('change', (e) => {
@@ -817,13 +580,13 @@ function buildTodoWithAddTodoFormData(formData) {
     });
 
     //asemble todo 
-    todoListItem.append(todoListItemIsComplete)
-    todoListItem.append(todoListItemTitle);
-    todoListItem.append(todoListItemDueDate);
-    todoListItem.append(todoListItemRepeat);
-    todoListItem.append(moveTodoToList);
-    todoListItem.append(todoListItemDeleteTodoButton);
-    todoListItem.append(todoListItemExpandButton);
+    todoElement.append(todoElementIsComplete)
+    todoElement.append(todoElementTitle);
+    todoElement.append(todoElementDueDate);
+    todoElement.append(todoElementRepeat);
+    todoElement.append(moveTodoToList);
+    todoElement.append(todoElementDeleteTodoButton);
+    todoElement.append(todoElementExpandButton);
 
-    return [todoListItem, formData[2]];
+    return todoElement;
 }

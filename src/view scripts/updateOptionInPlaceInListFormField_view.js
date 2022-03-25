@@ -4,6 +4,7 @@
     function updateOptionInPlaceInListFormField(methodOfChange, nameOfList, indexOfListInSavedListsArray) {
         //for form move todo to list
         let placeInList_form = document.getElementById("placeInList_form");
+        console.log(placeInList_form,'eh')
   
         //for todo move todo to list
         let placeInList_todo = document.querySelectorAll(".placeInList_todo") || '';
@@ -33,7 +34,7 @@
              * already works some how (not sure how?)
              */
             console.log(methodOfChange, 'method');
-            console.log(indexOfListInSavedListsArray, 'indexOfList');
+            console.log(indexOfListInSavedListsArray, 'indexOfList 000');
             console.log(nameOfList, 'name of list option to delete');
             //value of the option
             //will be the same as the index of that list in

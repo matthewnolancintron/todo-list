@@ -3,19 +3,21 @@ import { updateSavedLists } from './updateSavedLists_view.js';
 import { updateListInViewIndex } from './updateListInViewIndex_view.js';
 
 function addEventToDeleteListButton() {
-  let savedLists = JSON.parse(localStorage.getItem('savedLists'));
   let deleteListButton = document.querySelector("#deleteList");
   deleteListButton.addEventListener('click', (e) => {
     //get listInViewIndex from unorder list holder 
     let listInViewIndex = parseInt(localStorage.getItem('listInViewIndex'));
     console.log(listInViewIndex, 'value');
+    
 
+    let savedLists = JSON.parse(localStorage.getItem('savedLists'));
     //only delete list if there are lists to delete
     // can't delete list if there is one list
     if (savedLists.length > 1) {
       //console.log(savedLists.length, 'lists?')
       let listToDelete = document.querySelector('#todo-lists').children[listInViewIndex];
 
+      console.log(listToDelete,'delete this')
       //remove todo list from savedLists array
       updateSavedLists(listToDelete, 'deleteList');
 

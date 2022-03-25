@@ -12,90 +12,57 @@ import { addEventToAddTodoButton } from './addEventToAddTodoButton_view.js';
 import { addEventToCancelTodoButton } from './addEventToCancelTodoButton_view.js';
 import { addEventToConfirmTodoButton } from './addEventToConfirmTodoButton_view.js';
 
+//uuid
+const { v4: uuidv4 } = require('uuid');
+
 function View() {
   document.addEventListener('DOMContentLoaded', () => {
     //Global variables:
     /**
      * store "global" variables in local storage
-     * part of the web storage api
-     * 
-     * savedListsArray will be moving to local storage 
-     * soon
      * 
      * Make sure app doesn’t crash 
      * if the data retrieved from localStorage
-     * isn’t there!
-     * 
-     * local storage uses json.
-     * 
-     * can't store function in local storage
-     * need to find way to add back methods 
+     * isn’t there! 
      * 
      * method available for web storage api:
      * setItem, getItem, removeItem, key, length
      */
 
-    
     /**
      * store listinViewIndex in global storage
      */
-     localStorage.setItem('listInViewIndex', 0);
+    localStorage.setItem('listInViewIndex', 0);
 
-     /**
-      * @ solving this issue.
-      * trying to correctly store savedLists array in to local storage
-      * but the live htmlcollection stored in to it are being saved as empty objects
-      * 
-      * need to find a way to store live html collection so that when retrived it's not empty
-      * 
-      * option 1: wrap in quotes:
-      * stores a string version of "document.getElementByClassName("todo-list")[0]"
-      * which is the value of the varible/live html collection in string form
-      * stores in local storage just fine,
-      * issue not sure how to convert that string into raw value after it's parsed
-      * maybe try eval(JSON.parse(defaultList))
-      * issue eval is a security flaw
-      * 
-      * 
-      * option 2: outer.html
-      * stores all of the html from the live htmlCollection as string in local storage
-      * stores fine, retrivel is the difficult part
-      * 
-      * find solution to bring outerHTML into live htmlcollection
-      * or 
-      * outerHTML to document.getElementByClassName... and so on.
-      * 
-      * after this update all places where savedLists is used to make sure it's being correctly updated in local storage
-      * then test the application
-      * 
-      * go back to checing for all global variables and storing/retrieving in local storege
-      * 
-      * finish by separete local storage from view and move into data model script
-      * 
-      * orchestrate all of what's in view with index 
-      * index = controller view = view data-model = model
-      */
+    //add unnique id to the default list
+    let defaultList = document.getElementsByClassName("todo-list")[0];
+    defaultList.id = uuidv4();
 
     //active list by default (will soon be the last list the user had as active)
-    let defaultList = JSON.stringify(Array.from(document.getElementsByClassName("todo-list")[0]));
-    console.log(document.getElementsByClassName("todo-list")[0],'intended value for default list')
-    console.log(Array.from(document.getElementsByClassName("todo-list")[0]),'using array from on default list')
-    console.log(defaultList,'stringify default list');
-    console.log(JSON.parse(defaultList),'default list');
-
+    //testing
+    let stringy = JSON.stringify(defaultList.id);
+    console.log(document.getElementById(defaultList.id), 'intended value for default list');
+    console.log(stringy, 'stringify default list');
+    console.log(JSON.parse(stringy), 'default list parse passed to document get element by id');
+    console.log(document.getElementById(JSON.parse(stringy)), 'json parse passed to getElementsById');
+    /**
+     * both todo lists and todo's id's get are a uuid
+     * generated with uudiv4();
+     * need to import into each script that uses it.
+     * 
+     * run to gain functionality 
+     * npm install uuid
+     */
 
     //array of list elements and the todo that belong to them.
-    localStorage.setItem('savedLists',JSON.stringify([[defaultList, []],]));
-    // let savedLists = [
-    //   [defaultList, []],
-    // ];
-    //turn string default list value into non string value
+    localStorage.setItem('savedLists', JSON.stringify([[defaultList.id, []],]));
+
 
     /**
      * index of the active lists starts as the first list
      * will update via add active list func
      */
-    localStorage.setItem('indexOfActiveListInSavedLists',0);
+    localStorage.setItem('indexOfActiveListInSavedLists', 0);
 
     /**start todo List funtionality */
     /**
