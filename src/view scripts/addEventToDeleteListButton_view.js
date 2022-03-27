@@ -25,7 +25,8 @@ function addEventToDeleteListButton() {
       listToDelete.remove();
 
       //update listInView
-      if (listInViewIndex == savedLists.length) {
+      if (listInViewIndex == (savedLists.length - 1)) {
+        console.log('update list down by one?')
         updateListInViewIndex('down', 1);
       }
 

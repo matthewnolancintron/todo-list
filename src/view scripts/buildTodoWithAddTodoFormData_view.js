@@ -696,7 +696,7 @@ function buildTodoWithAddTodoFormData(formData) {
                 );
 
                 let isWeekDaysOnlyChecked = Boolean(
-                    !(isSatChecked && isSunChecked) &&
+                    !(isSatChecked && isSunChecked) && !(isSatChecked || isSunChecked) &&
                     (isMonChecked &&
                         isTueChecked &&
                         isWedChecked &&
