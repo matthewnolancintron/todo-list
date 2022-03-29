@@ -53,9 +53,6 @@ function addEventToAddNewListButton() {
 
     todoListItem = renameList(todoListItem);
 
-    //save newly create todo list to savedLists array in local storage
-    updateSavedLists(todoListItem, 'newList');
-
     //adding todo list to dom
     document.querySelector("#todo-lists").append(todoListItem);
 
@@ -65,7 +62,7 @@ function addEventToAddNewListButton() {
      * passing the text input for the newly added todo list
      * to the handleTextInputStateChanges function.
      */
-    handleTextInputStateChanges(textInputForThisParticularTodoListItem);
+    handleTextInputStateChanges(textInputForThisParticularTodoListItem,todoListItem);
   });
   //
 }

@@ -31,7 +31,7 @@ function addTodoToList(todoAndListData) {
    * 
    */
    let savedLists = JSON.parse(localStorage.getItem('savedLists'));
-   let idOfList = savedLists[list.value][0]
+   let idOfList = savedLists[list.value][0].uuid
    console.log(idOfList,'id of list');
    let listElement = document.getElementById(idOfList);
    console.log(listElement,"listElement");

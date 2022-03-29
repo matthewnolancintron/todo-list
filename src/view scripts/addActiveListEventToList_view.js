@@ -6,6 +6,7 @@
     //takes a todo list item
     // and attaches event listner for active list functionality
     function addActiveListEventToList(elementToAttachEventTo) {
+      console.log(elementToAttachEventTo,'222')
         elementToAttachEventTo.addEventListener('click', (e) => {
           let targets;
           let target;

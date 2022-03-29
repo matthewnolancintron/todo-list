@@ -13,4 +13,4 @@ function encodeTodoElementIntoTodoObjectData(todoElement) {
     };
 
     return todoObjectData;
-}
+};

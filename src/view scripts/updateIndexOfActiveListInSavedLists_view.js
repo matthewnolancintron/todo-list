@@ -4,7 +4,8 @@ export{updateIndexOfActiveListInSavedLists};
    function updateIndexOfActiveListInSavedLists() {
     let savedLists = JSON.parse(localStorage.getItem('savedLists')); 
     savedLists.forEach((x, index) => {
-      if (document.getElementById(x[0]).classList.contains("todo-list_activeList")) {
+      console.log(x[0],'?')
+      if (document.getElementById(x[0].uuid).classList.contains("todo-list_activeList")) {
         //not sure if update is correct
         localStorage.setItem('indexOfActiveListInSavedLists',index);
       }

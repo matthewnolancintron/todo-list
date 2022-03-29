@@ -1,9 +1,15 @@
 export { updateSavedLists };
+import { encodeTodoListElementIntoTodoListObject } from './encodeTodoListElementIntoTodoListObject_view.js';
 import { updateOptionInPlaceInListFormField } from './updateOptionInPlaceInListFormField_view.js';
 
 //used to help the intened data model and view insync
 function updateSavedLists(list, updateMethod) {
-  console.log(list, 'list?')
+  console.log(list,'list');
+  /**
+   * encode list element into list object 
+   */
+  let listObject = encodeTodoListElementIntoTodoListObject(list);
+
   //get savedLists from local storage
   let savedLists = JSON.parse(localStorage.getItem('savedLists'));
   console.log(savedLists, 'savedListsFrom local storage');
@@ -15,12 +21,12 @@ function updateSavedLists(list, updateMethod) {
   //  
   switch (updateMethod) {
     case 'newList':
-      savedLists.push([list.id, []]);
+      savedLists.push([listObject, []]);
       break;
     case 'deleteList':
       let indexOfListToDelete;
       savedLists.forEach((element, index) => {
-        if (element[0] == list.id) {
+        if (element[0].uuid == listObject.uuid) {
           indexOfListToDelete = index;
         }
       });
@@ -37,6 +43,17 @@ function updateSavedLists(list, updateMethod) {
       //savedLists = savedLists.filter(element => element.id != list.id);
       savedLists.splice(indexOfListToDelete,1);
 
+      break;
+    case 'renameList':
+      console.log('update list rename it in savedLists Array');
+      /**
+       * find location of list in savedLists and update the listName Property
+       */
+      savedLists.forEach((list,index) => {
+        if(list[0].uuid == listObject.uuid){
+          list[0].listName = listObject.listName;
+        }
+      });
       break;
     default:
       break;

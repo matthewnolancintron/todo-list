@@ -15,12 +15,15 @@
         let titleTextInput = document.createElement('input');
         titleTextInput.type = "text";
         titleTextInput.classList.add("todoList_titleTextInput");
+
+        console.log(todoList,'?')
   
         let isNewTodoList = Boolean(todoList.children[0].children.length == 0);
   
         if (isNewTodoList) {
           //renaming new todo list
           //console.log(todoList.children[0], '0');
+          console.log('eh')
           todoList.children[0].append(titleTextInput);
         } else {
           //renaming existing todo list

@@ -32,7 +32,7 @@
         let savedLists = JSON.parse(localStorage.getItem('savedLists'));
         savedLists.forEach((x) => {
           console.log(x,'x')
-          if (document.getElementById(x[0]).classList.contains("todo-list_activeList")) {
+          if (document.getElementById(x[0].uuid).classList.contains("todo-list_activeList")) {
             x[1].forEach((y) => {
               //decode todo ObjectData and append to todo area
               todoItemList.append(decodeTodoObjectIntoTodoElement(y));
