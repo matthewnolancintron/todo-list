@@ -39,7 +39,11 @@
  * controller will be index.js and the user
  * 
  */
+
+//to run the application
 //npx webpack or npx webpack --watch
+//and turn on live server
+//todo move these notes to a beter location.
 
 /**
  * 0:create controller
