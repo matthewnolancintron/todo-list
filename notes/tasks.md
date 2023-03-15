@@ -16,3 +16,9 @@
 [task info](5_better_documentation/document_project_better.md)
 
 
+
+extra stuff I think of while working on this:
+- add a logo to show up in the tab the web is open in
+
+
+
