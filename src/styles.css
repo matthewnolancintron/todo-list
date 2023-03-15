@@ -5,6 +5,16 @@
     box-sizing: border-box;
   }
 
+  html,body{
+    height:100%;
+    margin:0;
+  }
+
+  .application_container{
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100%;
+  }
 
 h1{
     text-align:center;
@@ -19,6 +29,7 @@ h1{
     align-items:center;
     justify-content:center;
     background:#ccc;
+    height:100%;
   }
   
   footer{
@@ -145,7 +156,7 @@ h1{
     background-color:rgb(84, 114, 25);
     margin:0;
     overflow:auto;
-    height:75vh;
+    height:100%;
     padding: 0 3%;
     scroll-snap-type: y mandatory;
   
@@ -237,7 +248,7 @@ h1{
   .addTodoForm_container{
    display: flex;
    justify-content: space-evenly; 
-   height: 100%;
+   height: fit-content;
    width: 100%;
    
   }
@@ -298,9 +309,9 @@ h1{
     margin: 10px;
   }
 
-  .expandTodoButton{
+  /* .expandTodoButton{
     
-  }
+  } */
 
 
   #reminder{
@@ -402,9 +413,9 @@ h1{
 
 
 
-  .changeDueDateButton{
+  /* .changeDueDateButton{
 
-  } 
+  }  */
 
   .renameTodoButton{
     width: fit-content;
@@ -417,9 +428,9 @@ h1{
     padding: 0;
   }
 
-  .todo-item > p {
+  /* .todo-item > p {
   
-  }
+  } */
 
   .todo-item_title{
     color: floralwhite;
