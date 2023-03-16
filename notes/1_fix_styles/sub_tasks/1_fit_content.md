@@ -1,17 +1,18 @@
-## making content fit
+# fixing layout 
+making content fit onto the page better
 
-To make the content in the body of my web app fit and not overflow in the vertical direction as to avoid scrolling for that part of the application I tried adding the following css rule
+can start using the diagrams to style to application
+if need can create more diagrams for the subsections
+nested in .addTodoFormcontainer
 
-`
-css
-body {
-  height: 100%;
-  overflow: hidden;
-}
-`
 
-This will ensure that the content of the body element stays within the visible area of the page and doesn't overflow causing a vertical scroll.
+after looking over my html 
+I realize it's pretty bad and could use some work
+I could update a lot of class names to better match what
+the markup is for but I would have to check through a lot
+of scripts to see what will be affect and update the naming
+in each .js file accordingly 
 
-My problem is that now the footer of the application is hidden and I don't want that I want all of the application to fit on the page and be viewable.
+I could also update the HTML to be a little more sementic
 
-Currently adjusting index.html and styles.css while working on this task.
+eventualy I should also work on a11y stuff.
