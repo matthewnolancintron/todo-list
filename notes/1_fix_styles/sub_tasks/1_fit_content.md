@@ -1,9 +1,7 @@
-# fixing layout 
+# make content fit
 making content fit onto the page better
 
-can start using the diagrams to style to application
-if need can create more diagrams for the subsections
-nested in .addTodoFormcontainer
+
 
 
 after looking over my html 
@@ -16,3 +14,14 @@ in each .js file accordingly
 I could also update the HTML to be a little more sementic
 
 eventualy I should also work on a11y stuff.
+
+
+finished styling the section 1 of 2
+for main content which is the
+#todoLists-area, I could style 
+the nested elements but I'm going to
+leave them as is for now since 
+I don't have anything in mind for them
+and they look fine for now.
+
+start styling #todos-area next
