@@ -1,510 +1,540 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  *{
-    margin:0;
-    padding:0;
-    box-sizing: border-box;
-  }
+html,
+body {
+  height: 100%;
+}
 
-  html,body{
-    height:100%;
-    margin:0;
-  }
+.app-container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100%;
+  min-width: 100%;
+}
 
-  .app-container{
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    min-height: 100%;
-  }
+h1 {
+  text-align: center;
+  background-color: #222;
+  color: white;
+}
 
-h1{
-    text-align:center;
-    background-color:#222;
-    color:white;
-    margin:0;
-  }
-  
-  #main-content{
-    display: flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    background:#ccc;
-    height:100%;
-  }
-  
-  footer{
-    background-color:#000;
-    width:100%;
-  }
-  
-  #todoLists-area{
-    width:70%;
-    display:flex;
-    justify-content:space-around;
-    align-items:center;
-    background-color:#eff;
-  }
-  
-  .todoListsHeader{
-    margin:1em;
-  }
-  
-  #todo-lists{
-    overflow: hidden;
-    display:flex;
-    flex-direction:row;
-    list-style-type:none;
-    scroll-snap-type: x mandatory;
-    padding-left: 0;
-    scroll-behavior: smooth;
-    width: 21vw;
-    height: 10vh;
-    text-align: center;
-    align-items: center;
-   
-  }
-  
-  .todo-list{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding:3%;
-    background-color:rgba(34, 51, 17, 0.5);
-    color:white;
-    scroll-snap-align: center;
-    flex:1 0 100%;
-    cursor: pointer;
-  }
+#main-content {
+  display: flex;
+  flex-direction: column;
+  align-items:center;
+  justify-content: flex-start;
+  background:rgba(0,0,0,0.9);
+  height: 100%;
+  width:100%;
+}
 
-  .todoList_titleTextInput{
-    width: 100%;
-    height: 100%;
-  }
+footer {
+  background-color: #000;
+  width: 100%;
+}
 
-  .todo-list_activeList{
-    background-color:rgba(34, 51, 17, 1);
-  }
-  
-  .carousel_button{
-    border: solid black;
-    border-width: 0 1.2rem 0.9rem 0;
-    padding: 1rem;
-    background:rgba(0,0,0,0);
-    margin:2em
-  }
-  
-  .left_arrow{
-    transform:rotate(135deg);
-  }
-  
-  .left_arrow:active{
-    transform: rotate(135deg) translate(10px,10px);
-  }
-  
-  .arrow_key_left{
-    transform: rotate(135deg) translate(10px,10px);
-  }
-  
-  .right_arrow{
-    transform:rotate(-45deg);
-  }
-  
-  .right_arrow:active{
-    transform:rotate(-45deg) translate(10px,10px);
-  }
-  
-  .arrow_key_right{
-    transform:rotate(-45deg) translate(10px,10px);
-  }
-  
-  .carousel_indicator{
-    border-radius:100%;
-    width:24px;
-    height:24px;
-    margin-top:1rem;
-    margin-bottom:0;
-    padding-bottom:0;
-    scroll-snap-align: center; 
-  }
-
-  .carousel_indicator:focus{
-    scroll-snap-align:center;
-    scroll-snap-stop: always;
-  }
-    
+#todoLists-area {
+  display: flex;
+  justify-content: space-around;
+  align-items:center;
+  background-color: #eff;
+  width:90vh;
+  height:fit-content;
+  /* padding: 0.5em 0; */
+}
 
 
+.todoListsHeader {
+  margin: 0.5em;
+}
 
 
+/*
+  only show the title
+  on larger displays
 
-  #todos-area{
-    width:70%;
-    text-align:center;
-    background-color:#cee;
-    display:flex;
-    flex-direction: column;
-    justify-content:center;
-    align-items:center;
+  once I get to adding media
+  queries move this style
+  to a querie for a larger display
+  for now just going to comment it out
+  or could use hide content?
+
+  and have all the current styles 
+  as the default.
+ */
+@media only screen and (max-width: 768px) {
+  .todoListsHeader {
+    display: none;
   }
-  
-  .todo-items{
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    flex-wrap:wrap;
-    width:90%;
-    background-color:rgb(84, 114, 25);
-    margin:0;
-    overflow:auto;
-    height:100%;
-    padding: 0 3%;
-    scroll-snap-type: y mandatory;
-  
-  }
-  
-  
-  div.todo-maker{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    margin:0;
-    width: 100%;
-    border-right: none;
-    border-left: none;
-    border-top: 3px black solid;
-    border-bottom: 3px black solid;
-  }
-  
-    .add_todo_container{
-      background-color: green;
-      height: 12vh;
-      align-self: center;
-    }
+}
 
-    .add_todo_container:active button{
-      box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
-      inset 3px 3px 5px rgba(13, 12, 26, 0.1);
-    }
-  
-  .add_Todo{
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 2, 3, 0.6);
-    color: white;
-    border:none;
-    font-size:20px;
-    box-shadow:
+#todo-lists {
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+  scroll-snap-type: x mandatory;
+  padding-left: 0;
+  scroll-behavior: smooth;
+  width: 50%;
+  height: fit-content;
+  text-align: center;
+  align-items: center;
+  /* overflow-x: scroll; */
+
+}
+
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3%;
+  background-color: rgba(34, 51, 17, 0.5);
+  color: white;
+  scroll-snap-align: center;
+  flex: 1 0 100%;
+  cursor: pointer;
+}
+
+.todoList_titleTextInput {
+  width: 100%;
+  height: 100%;
+}
+
+.todo-list_activeList {
+  background-color: rgba(34, 51, 17, 1);
+}
+
+.carousel_button {
+  border: solid black;
+  border-width: 0 0.5rem 0.5rem 0;
+  padding: 0.5rem;
+  background: rgb(0, 0, 0, 0);
+  margin: 0
+}
+
+.left_arrow {
+  transform: rotate(135deg);
+  margin-left: 2.5em;
+}
+
+.left_arrow:active {
+  transform: rotate(135deg) translate(10px, 10px);
+}
+
+.arrow_key_left {
+  transform: rotate(135deg) translate(10px, 10px);
+}
+
+.right_arrow {
+  transform: rotate(-45deg);
+}
+
+.right_arrow:active {
+  transform: rotate(-45deg) translate(10px, 10px);
+}
+
+.arrow_key_right {
+  transform: rotate(-45deg) translate(10px, 10px);
+}
+
+.carousel_indicator {
+  border-radius: 100%;
+  width: 24px;
+  height: 24px;
+  margin-top: 1rem;
+  margin-bottom: 0;
+  padding-bottom: 0;
+  scroll-snap-align: center;
+}
+
+.carousel_indicator:focus {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+
+
+
+
+
+#todos-area {
+  width: 70%;
+  text-align: center;
+  background-color: #cee;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.todo-items {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  width: 90%;
+  background-color: rgb(84, 114, 25);
+  margin: 0;
+  overflow: auto;
+  height: 100%;
+  padding: 0 3%;
+  scroll-snap-type: y mandatory;
+
+}
+
+
+div.todo-maker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  border-right: none;
+  border-left: none;
+  border-top: 3px black solid;
+  border-bottom: 3px black solid;
+}
+
+.add_todo_container {
+  background-color: green;
+  height: 12vh;
+  align-self: center;
+}
+
+.add_todo_container:active button {
+  box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
+    inset 3px 3px 5px rgba(13, 12, 26, 0.1);
+}
+
+.add_Todo {
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 2, 3, 0.6);
+  color: white;
+  border: none;
+  font-size: 20px;
+  box-shadow:
     -2px -2px 5px rgb(140, 154, 236),
-    3PX 3PX 5px rgba(0, 0, 0 , 0.1);
-    cursor: pointer;
-  }
+    3PX 3PX 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
 
-  .add_Todo_hide{
-    display:none;
-  }
+.add_Todo_hide {
+  display: none;
+}
 
-  .confirmOrCancel_todo_container, .addAndRemoveList_buttons_container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
+.addAndRemoveList_buttons_container{
+  margin-left: 3em;
+}
 
-  .confirmOrCancel_Todo:active,.listOption_button:active{
-    box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
-    inset 3px 3px 5px rgba(13, 12, 26, 0.1);   
-  }
+.confirmOrCancel_todo_container,
+.addAndRemoveList_buttons_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.confirmOrCancel_Todo:active,
+.listOption_button:active {
+  box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
+    inset 3px 3px 5px rgba(13, 12, 26, 0.1);
+}
 
 
 
-  .confirmOrCancel_Todo, .listOption_button{
-    padding: 1%;
-    align-self: center;
-    background: rgba(0, 2, 3, 0.9);
-    color: white;
-    border:none;
-    font-size:18px;
-    box-shadow:
+.confirmOrCancel_Todo,
+.listOption_button {
+  padding: 1%;
+  align-self: center;
+  background: rgba(0, 2, 3, 0.9);
+  color: white;
+  border: none;
+  font-size: 18px;
+  box-shadow:
     -2px -2px 5px rgb(140, 154, 236),
-    3PX 3PX 5px rgba(0, 0, 0 , 0.1);
-    flex:1 1 25%;
-    margin: 3% 0;
-    height: fit-content;
-    cursor: pointer;
-    width: 100%;
-  }
+    3PX 3PX 5px rgba(0, 0, 0, 0.1);
+  flex: 1 1 25%;
+  margin: 3% 0;
+  height: fit-content;
+  cursor: pointer;
+  width: 100%;
+}
 
-  .addTodoForm_inactive{
-    display:none;
-  }
+.addTodoForm_inactive {
+  display: none;
+}
 
-  .addTodoForm_active{
-    display:flex;
-    
-    
-  }
+.addTodoForm_active {
+  display: flex;
 
-  .addTodoForm_container{
-   display: flex;
-   justify-content: space-evenly; 
-   height: fit-content;
-   width: 100%;
-   
-  }
 
-  .makeTodoInputGroup{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    
-  }
+}
 
-  .makeTodoInputGroupSub_1{
-   display: flex;
-   flex-direction: column;
-   gap:1%;
-   justify-content: center;
-   align-items: center;
-  }
+.addTodoForm_container {
+  display: flex;
+  justify-content: space-evenly;
+  height: fit-content;
+  width: 100%;
 
-  .makeTodoInputGroupSub_2{
-    display:flex;
-    gap: 3%;
-    width: 100%;
-  }
+}
 
-  .makeTodoInputGroupSub_2 label{
-    width: 50%;
-  }
-  
+.makeTodoInputGroup {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
 
-  #todoTitle_form {
-    text-align: center;
-    width: 75%;
-    height: 75%;
-  }
+}
 
-  label[for="todoTitle_form"]{
-    cursor: pointer;
-  }
+.makeTodoInputGroupSub_1 {
+  display: flex;
+  flex-direction: column;
+  gap: 1%;
+  justify-content: center;
+  align-items: center;
+}
 
-  #dueDate_form{
-    text-align: center;
-    width: 75%;
-    height: 75%;
-    cursor: pointer;
-  }
+.makeTodoInputGroupSub_2 {
+  display: flex;
+  gap: 3%;
+  width: 100%;
+}
 
-  label[for="dueDate_form"]{
-    cursor: pointer;
-  }
+.makeTodoInputGroupSub_2 label {
+  width: 50%;
+}
 
-  #markTodoComplete{
-    opacity:1;
-    width: 1.15em;
-    height: 1.15em;
-    border: 0.09em solid currentColor;
-    margin: 10px;
-  }
 
-  /* .expandTodoButton{
+#todoTitle_form {
+  text-align: center;
+  width: 75%;
+  height: 75%;
+}
+
+label[for="todoTitle_form"] {
+  cursor: pointer;
+}
+
+#dueDate_form {
+  text-align: center;
+  width: 75%;
+  height: 75%;
+  cursor: pointer;
+}
+
+label[for="dueDate_form"] {
+  cursor: pointer;
+}
+
+#markTodoComplete {
+  opacity: 1;
+  width: 1.15em;
+  height: 1.15em;
+  border: 0.09em solid currentColor;
+  margin: 10px;
+}
+
+/* .expandTodoButton{
     
   } */
 
 
-  #reminder{
-    width: 100%;
-    height: 75%;
-    align-self: flex-start;
-  }
+#reminder {
+  width: 100%;
+  height: 75%;
+  align-self: flex-start;
+}
 
-  #times{
-    width: 20%;
-  }
+#times {
+  width: 20%;
+}
 
-  #repeat_options{
-    cursor: pointer;
-  }
+#repeat_options {
+  cursor: pointer;
+}
 
-  /*104x46*/
-  /*336x117*/
-  .repeat_container{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-width: 100%;
-    min-height: 100%;
-    gap: 10%;
-  }
-  
-  .toggle_repeat_OFF{
-    background-color: red;
-    cursor: pointer;
-  }
+/*104x46*/
+/*336x117*/
+.repeat_container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 100%;
+  min-height: 100%;
+  gap: 10%;
+}
 
-  .toggle_repeat_ON{
-    background-color: green;
-    cursor: pointer;
-  }
+.toggle_repeat_OFF {
+  background-color: red;
+  cursor: pointer;
+}
 
-  .repeat_option_container{
-    display: flex;
-    flex-direction: column;
-  }
+.toggle_repeat_ON {
+  background-color: green;
+  cursor: pointer;
+}
 
-  .repeat_option_sub_container{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 3%;
-    
-  }
+.repeat_option_container {
+  display: flex;
+  flex-direction: column;
+}
 
-  
-  .todo-item{
-    scroll-snap-stop: always;
-    scroll-snap-align: center;
-    flex: 1 1 100%;
-    flex-direction: row-reverse;
-    border:solid #ddd 0.3rem;
-    background-color:#235;
-    color:white;
-    list-style:none;
-    font-size:1.2rem;
-    text-align:left;
-    margin: 2% 0;
-    padding: 3% 2%;
-    min-height: 9%;
-    min-width: 100%;
-    line-height: 2.3rem;
-    height: 10em;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content:space-around;
-    align-items:center;
-  }
+.repeat_option_sub_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3%;
 
-  .expand-Todo{
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    align-items: center;
-    align-content: center;
-    gap: 1.2em;
-  }
-
-  .editableTodoFieldContainer{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border: solid black 2px;
-    gap: 3em;
-  }
-
-  .editableTodoFieldContainer_repeat{
-    flex-direction: column;
-    gap: 0;
-  }
+}
 
 
+.todo-item {
+  scroll-snap-stop: always;
+  scroll-snap-align: center;
+  flex: 1 1 100%;
+  flex-direction: row-reverse;
+  border: solid #ddd 0.3rem;
+  background-color: #235;
+  color: white;
+  list-style: none;
+  font-size: 1.2rem;
+  text-align: left;
+  margin: 2% 0;
+  padding: 3% 2%;
+  min-height: 9%;
+  min-width: 100%;
+  line-height: 2.3rem;
+  height: 10em;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
 
-  /* .changeDueDateButton{
+.expand-Todo {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  gap: 1.2em;
+}
+
+.editableTodoFieldContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: solid black 2px;
+  gap: 3em;
+}
+
+.editableTodoFieldContainer_repeat {
+  flex-direction: column;
+  gap: 0;
+}
+
+
+
+/* .changeDueDateButton{
 
   }  */
 
-  .renameTodoButton{
-    width: fit-content;
-  }
+.renameTodoButton {
+  width: fit-content;
+}
 
-  .todoItemSizingContainer{
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-  }
+.todoItemSizingContainer {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
 
-  /* .todo-item > p {
+/* .todo-item > p {
   
   } */
 
-  .todo-item_title{
-    color: floralwhite;
-    flex: 50%;
-    
-  }
+.todo-item_title {
+  color: floralwhite;
+  flex: 50%;
 
-  .todo-item_dueDate{
-    color:honeydew;
-    flex:50%;
-  }
+}
 
-  .todo-item_repeat{
-    color:linen;
-    flex:50%;
-  }
+.todo-item_dueDate {
+  color: honeydew;
+  flex: 50%;
+}
+
+.todo-item_repeat {
+  color: linen;
+  flex: 50%;
+}
 
 
-  .dayOfTheWeekSelector{
-    display: none;
-    flex-direction: row;
-    justify-content: flex-end;
-    align-items: center;
-    list-style-type: none;
-  
-  }
+.dayOfTheWeekSelector {
+  display: none;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  list-style-type: none;
 
-  .show_dayOfTheWeekSelector{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    gap:5%;
-  }
+}
 
-  .dayOfTheWeekSelector li{
-    text-align: center;
-    
-  }
+.show_dayOfTheWeekSelector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5%;
+}
 
-  .dayOfTheWeekSelector li label{
-    cursor: pointer;
-  }
+.dayOfTheWeekSelector li {
+  text-align: center;
 
-  input[type="checkbox"]{
-    opacity:0;
-  }
+}
 
-  input:checked ~ .icon-box{
-    box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
+.dayOfTheWeekSelector li label {
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  opacity: 0;
+}
+
+input:checked~.icon-box {
+  box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
     inset 3px 3px 5px rgba(13, 12, 26, 0.1);
-    background-color: rgb(12, 20, 34);
+  background-color: rgb(12, 20, 34);
 
-  }
+}
 
-  .icon-box{
-    width: 100%;
-    height: 100%;
-    background: rgb(37, 56, 95);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow:
+.icon-box {
+  width: 100%;
+  height: 100%;
+  background: rgb(37, 56, 95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
     -2px -2px 5px rgb(140, 154, 236),
-    3PX 3PX 5px rgba(0, 0, 0 , 0.1);
-    border-radius:3px;
-    padding: 30%;
-  }
+    3PX 3PX 5px rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  padding: 30%;
+}
 
-  .icon-box p{
-   font-size: 14px;
-   color: white;
-   transform:scale(0.95);
-   user-select: none; 
-   padding: 10%;
-  }
-
-  
+.icon-box p {
+  font-size: 14px;
+  color: white;
+  transform: scale(0.95);
+  user-select: none;
+  padding: 10%;
+}
