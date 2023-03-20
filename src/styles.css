@@ -6,14 +6,19 @@
 
 html,
 body {
-  height: 100%;
+  height: 100vh;
+  width:100vw;
 }
 
 .app-container {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  min-height: 100%;
-  min-width: 100%;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+.header{
+  width: 100%;
 }
 
 h1 {
@@ -42,14 +47,15 @@ footer {
   justify-content: space-around;
   align-items:center;
   background-color: #eff;
-  width:90vh;
+  width:90%;
   height:fit-content;
-  /* padding: 0.5em 0; */
+  margin-bottom:1%;
 }
 
 
 .todoListsHeader {
   margin: 0.5em;
+  display: none;
 }
 
 
@@ -57,6 +63,9 @@ footer {
   only show the title
   on larger displays
 
+.todoListsHeader {
+
+}
   once I get to adding media
   queries move this style
   to a querie for a larger display
@@ -65,12 +74,15 @@ footer {
 
   and have all the current styles 
   as the default.
+
+  add it back on large displays only
  */
-@media only screen and (max-width: 768px) {
+/* @media only screen and (min-width: 1200px) {
   .todoListsHeader {
-    display: none;
+    display: block; or was it inline?
   }
-}
+} */
+
 
 #todo-lists {
   overflow: hidden;
@@ -84,7 +96,7 @@ footer {
   height: fit-content;
   text-align: center;
   align-items: center;
-  /* overflow-x: scroll; */
+  
 
 }
 
@@ -157,13 +169,9 @@ footer {
   scroll-snap-stop: always;
 }
 
-
-
-
-
-
 #todos-area {
   width: 70%;
+  height:100%;
   text-align: center;
   background-color: #cee;
   display: flex;
@@ -189,40 +197,35 @@ footer {
 
 
 div.todo-maker {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  margin: 0;
+  height:fit-content;
   width: 100%;
-  border-right: none;
-  border-left: none;
-  border-top: 3px black solid;
-  border-bottom: 3px black solid;
+  background-color:darkgreen;
+  /* position: fixed; */
 }
 
-.add_todo_container {
-  background-color: green;
-  height: 12vh;
-  align-self: center;
-}
 
 .add_todo_container:active button {
-  box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
+  box-shadow: inset -2px -2px 5px rgb(53, 59, 90),
     inset 3px 3px 5px rgba(13, 12, 26, 0.1);
 }
 
+/* 
+  having trouble getting this to center in it's container
+  still have not figured out a fix for it.
+  
+ */
 .add_Todo {
+  cursor: pointer;
   width: 100%;
   height: 100%;
+  padding: 10px;
   background: rgba(0, 2, 3, 0.6);
   color: white;
   border: none;
-  font-size: 20px;
+  font-size: 1.2em;
   box-shadow:
-    -2px -2px 5px rgb(140, 154, 236),
+    -2px -2px 5px rgb(55, 59, 77),
     3PX 3PX 5px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
 }
 
 .add_Todo_hide {
@@ -233,7 +236,6 @@ div.todo-maker {
   margin-left: 3em;
 }
 
-.confirmOrCancel_todo_container,
 .addAndRemoveList_buttons_container {
   display: flex;
   justify-content: center;
@@ -241,13 +243,21 @@ div.todo-maker {
   flex-direction: column;
 }
 
+
+.confirmOrCancel_todo_container{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  width:100%;
+  
+}
+
 .confirmOrCancel_Todo:active,
 .listOption_button:active {
   box-shadow: inset -2px -2px 5px rgb(140, 154, 236),
     inset 3px 3px 5px rgba(13, 12, 26, 0.1);
 }
-
-
 
 .confirmOrCancel_Todo,
 .listOption_button {
@@ -273,38 +283,32 @@ div.todo-maker {
 
 .addTodoForm_active {
   display: flex;
-
-
-}
-
-.addTodoForm_container {
-  display: flex;
-  justify-content: space-evenly;
-  height: fit-content;
-  width: 100%;
-
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  color:white;
 }
 
 .makeTodoInputGroup {
+  margin-top: 2%;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-
+  margin-bottom: 2%;
+  width: 100%;
 }
 
 .makeTodoInputGroupSub_1 {
   display: flex;
   flex-direction: column;
-  gap: 1%;
   justify-content: center;
   align-items: center;
 }
 
 .makeTodoInputGroupSub_2 {
   display: flex;
-  gap: 3%;
   width: 100%;
+  margin-bottom:3%;
 }
 
 .makeTodoInputGroupSub_2 label {
@@ -369,7 +373,19 @@ label[for="dueDate_form"] {
   align-items: center;
   min-width: 100%;
   min-height: 100%;
-  gap: 10%;
+  padding: 3%;
+  
+}
+
+#toggleRepeat{
+  padding: 3px;
+  border:0.5px white solid;
+  width: 100%;
+  font-weight: 700;
+  /*
+   would like to add a css animation here
+   to make it look like an on off slide
+   */
 }
 
 .toggle_repeat_OFF {
@@ -382,17 +398,18 @@ label[for="dueDate_form"] {
   cursor: pointer;
 }
 
+
+
 .repeat_option_container {
   display: flex;
   flex-direction: column;
+  margin-bottom:3%;
 }
 
 .repeat_option_sub_container {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
-  gap: 3%;
-
 }
 
 
