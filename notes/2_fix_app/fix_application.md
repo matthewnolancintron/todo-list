@@ -1,7 +1,12 @@
-# fixing the app's intented functionality
-some things aren't working as they should
-I need to test the application and fix any issues I come across
+Issues:
+when a new list is created
+todo items can't be placed or added to those lists
+for some reason.
+until a page refresh.
 
-todo name this issue:
-for some reason todo when added
-from the todo list area only show up in the default list even when another list is set instead.
+find the code that handles adding a new list
+I checked local storge and the list seems to get added
+but todo items can't get added to it try to find the
+code for adding and moving todo items to then do some further
+testing to narrow down the issues might have to do some sort
+of update in that area.
