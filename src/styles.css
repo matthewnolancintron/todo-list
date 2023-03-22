@@ -192,8 +192,6 @@ footer {
   height: 77vh;
   padding: 0 3%;
   scroll-snap-type: y mandatory;
-  
-
 }
 
 
@@ -333,6 +331,7 @@ div.todo-maker {
 
 .makeTodoInputGroupSub_2 label {
   width: 50%;
+  padding: 1.2em;
 }
 
 
