@@ -1,11 +1,4 @@
 # Tasks
-
-## 1. Improve the styles.
-[task info](1_fix_styles/improve_styles.md)
-
-## 2. Fix the application.
-[task info](2_fix_app/fix_application.md)
-
 ## 3. configure firebase.
 [task info](3_config_firebase/configure_firebase.md)
 
