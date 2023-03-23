@@ -21,9 +21,10 @@ function handleTextInputStateChanges(textInputForTodoListItem, listElement) {
     //
     let name = getTodoListTitle(e.target.value);
     setTodoListTitle(e.target.parentElement.parentElement, name);
+    
     //after name is decided,
     //update placeInList_form field options
-    updateOptionInPlaceInListFormField('addOption', name, savedLists.length - 1);
+    updateOptionInPlaceInListFormField('addOption', name, savedLists.length);
 
     //save newly create todo list to savedLists array in local storage
     updateSavedLists(listElement, 'newList');
