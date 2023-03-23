@@ -6,22 +6,6 @@
  create labels for todos
  filter todos
  light and dark and green theme
-
- kaban-style cards (kaban view)
- create multiple sections with headers
- drag todo's between sections to create
- a board. 
- 
- display tasks on a calendar:
- multiple calendar views
- 
- daily view shows all tasks on an hour/minute
- vertical or horizontal grid:
-
- weekly view shows all tasks for each 
- day of the week 
-
- monthly view see task on all days of the month:
  */
 
 /**
@@ -43,7 +27,6 @@
 //to run the application
 //npx webpack or npx webpack --watch
 //and turn on live server
-//todo move these notes to a beter location.
 
 /**
  * 0:create controller
@@ -55,14 +38,6 @@
  * 
  * 1:build data modules
  * -separate data(local storage) from view 
- * 
- * 2: last feature for now.
- * -data persiests:
- *    move any local stoarge releated tasks and to data scrips rename the scripts
- *    and updata the imports
- *     configure application to pick up where the user left off by checking
- *     local storage and then updating application state accordingly
- * 
  * 
  *  after completing the above this project is completed for now move
  *  on to the next steps in the TOP
@@ -89,6 +64,124 @@ import { encodeTodoListElementIntoTodoListObject } from './view scripts/encodeTo
 //data:modules (not sure about these modules they are kind of redundant)
 import { setItemAndValueInLocalStorage } from './data model scripts/setItemAndValueInLocalStorage_data.js';
 import { getItemFromLocalStorage } from './data model scripts/getItemFromLocalStorage_data.js'
+
+
+/** -- firebase --  */
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyB4lhK5-F0YimGCrVrEiPkc-hihrAqVEz8",
+  authDomain: "todo-web-app-a7006.firebaseapp.com",
+  projectId: "todo-web-app-a7006",
+  storageBucket: "todo-web-app-a7006.appspot.com",
+  messagingSenderId: "1001588346863",
+  appId: "1:1001588346863:web:6836306c476f145e3fb01a"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+/**
+ * check and learn how to use:
+ * Cloud Firestore
+ * Authentication
+ * 
+ */
+
+/**
+ * add a sign in option to my todo application
+ * using firebase auth 
+ * 
+ * todo:
+ * add sign in button to the interface,
+ * 
+ * if user is not logged in add a sign in/sign up button to the
+ * header element 
+ * if the are signed in then display their user name and a
+ * log out button
+ * 
+ * probably make a script to handle this logic
+ * 
+ * such as handleLoginState
+ * 
+ * I would check if userloged in or not here 
+ * once the document is ready and then
+ * set the event here using the imported
+ * script and function that handles that logic
+ * then write the logic in the imported file.
+ * 
+ */
+// start working on this tomorrow.
+  import {getAuth} from  'firebase/auth'
+  const auth = getAuth(app);
+  
+
+/**
+ * 
+   update data stored and retrieved from local storage
+   to instead have data for users todo information
+   saved and retrieved to and from fire storage
+ */
+//   import {getFireStore} from 'firebase/firestore'
+//   const db = getFireStore(app);;
+
+
+/**
+ * add offline feature:
+ * 
+ * 
+ * advice for service that could be used for this 
+ * from chatGPT:
+ * Firebase offers several features that can be used for 
+ * offline functionality in your web app.
+ * One option is to use Cloud Firestore,
+ * which provides offline data persistence.
+ * With this feature, your app can continue to read and write data
+ * even when it's offline, and the data will automatically sync
+ * with the server once the device goes back online.
+ * Another option is to use Firebase Realtime Database,
+ * which also supports offline data persistence.
+ * With this feature, your app can cache data locally
+ * and use it even when it's offline,
+ * and the data will be synchronized with the server once
+ * the device goes back online.
+ * In addition to these options,
+ * Firebase also provides a set of offline synchronization tools
+ * for handling network connectivity issues,
+ * 
+ * such as Firebase Offline Data Access (ODA),
+ * Firebase Database Persistence,
+ * and Firebase Cloud Messaging (FCM).
+ * To get started with adding offline functionality
+ * to your web app using Firebase,
+ * you can refer to the official Firebase documentation,
+ * which provides detailed guides and tutorials on implementing
+ * these features in your app.
+ * 
+ * I'm going to use this option:
+ * Cloud Firestore,
+ * which provides offline data persistence.
+ * With this feature, your app can continue to read and write data
+ * even when it's offline, and the data will automatically sync
+ * with the server once the device goes back online.
+ * 
+ * I'm going to check the documentation for theses:
+ * Firebase Offline Data Access (ODA),
+ * Firebase Database Persistence,
+ * and Firebase Cloud Messaging (FCM).
+ * 
+ */
+
+
+/** -- firebase -- */
+
+
+
+
 
 
 /**

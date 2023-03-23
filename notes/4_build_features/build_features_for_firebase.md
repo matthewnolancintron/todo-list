@@ -1,18 +1,7 @@
 # build features that make use of firebase
-I'm going to add a sign in option to my todo application 
-and rather than using local storage i'll have data for the users todo information
-saved to fire storage instead and be able to use it offline too.
+
 
 general steps to add Firebase authentication and Firestore to your todo application:
-
-    Create a Firebase account and project
-        Go to the Firebase console (https://console.firebase.google.com/) and create a new project
-        Follow the prompts to set up your project
-
-    Add Firebase to your project
-        In your project directory, run npm install firebase to install the Firebase SDK for JavaScript
-        In your HTML file, add the Firebase JavaScript SDK using a script tag
-        Initialize Firebase in your JavaScript code using your Firebase project's configuration
 
     Set up Firebase Authentication
         In the Firebase console, go to the Authentication section and enable the sign-in method you want to use (e.g., email and password)
