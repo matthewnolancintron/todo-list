@@ -19,11 +19,14 @@ body {
 
 .header {
   width: 100%;
+  display: flex;
+  align-items:center;
+  justify-content: space-around;
+  background-color: #222;
 }
 
 h1 {
   text-align: center;
-  background-color: #222;
   color: white;
 }
 
@@ -375,10 +378,6 @@ label[for="dueDate_form"] {
   margin: 10px;
 }
 
-/* .expandTodoButton{
-    
-  } */
-
 
 #reminder {
   width: 100%;
@@ -584,4 +583,98 @@ input:checked~.icon-box {
   transform: scale(0.95);
   user-select: none;
   padding: 10%;
+}
+
+
+
+
+/* Popup container */
+#popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px;
+}
+
+#closePopUp {
+  font-size: 32px;
+  font-weight: bold;
+  color: #555;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+#closePopUp:hover {
+  color: #000;
+}
+
+/* Form container */
+#popup form {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Form inputs */
+#popup form input[type="email"],
+#popup form input[type="password"],
+#popup form input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+/* Form buttons */
+#popup form button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #4caf50;
+  margin-bottom: 2%;
+}
+
+/* Form buttons hover */
+#popup form button:hover {
+  background-color: #3e8e41;
+}
+
+/* Close button */
+#popup .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+/* Responsive styles */
+@media only screen and (max-width: 600px) {
+  #popup form {
+    max-width: 90%;
+  }
 }

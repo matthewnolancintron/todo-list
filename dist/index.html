@@ -33,6 +33,38 @@
   <div class="app-container">
     <header class="header">
       <h1>todo</h1>
+      <div id="user-info">
+        <!-- User info and options go here -->
+      </div>
+      <div id="sign-in-buttons">
+        <!-- Sign-in/sign-up buttons go here -->
+      </div>
+
+      <div id="popup"
+        style="display:none; position:fixed; top:0; bottom:0; left:0; right:0; background-color:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+        <div style="background-color:white; padding:20px; border-radius:5px;">
+          <!-- Your sign-in/sign-up form goes here -->
+          <div class="popup-header">
+            <h2>Sign In / Sign Up</h2>
+            <button id="closePopUp" class="popup-close">&times;</button>
+          </div>
+          <form id="auth-form">
+            <div>
+              <label for="email">Email:</label>
+              <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+              <button type="submit" id="sign-in-button">Sign In</button>
+              <button type="submit" id="sign-up-button">Sign Up</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </header>
 
     <div id='main-content'>
@@ -188,7 +220,7 @@
             <div class="makeTodoInputGroup">
               <div class="confirmOrCancel_todo_container">
                 <button class="confirmOrCancel_Todo" type="button">confirm</button>
-              
+
                 <button class="confirmOrCancel_Todo" type="button">cancel</button>
               </div>
             </div>

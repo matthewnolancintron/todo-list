@@ -58,7 +58,7 @@ import { addEventToRepeatOptions } from './view scripts/addEventToRepeatOptions_
 import { addEventToAddTodoButton } from './view scripts/addEventToAddTodoButton_view.js';
 import { addEventToCancelTodoButton } from './view scripts/addEventToCancelTodoButton_view.js';
 import { addEventToConfirmTodoButton } from './view scripts/addEventToConfirmTodoButton_view.js';
-import {updateListsInTodoListsArea} from './view scripts/updateListsInTodoListsArea_view.js';
+import { updateListsInTodoListsArea } from './view scripts/updateListsInTodoListsArea_view.js';
 import { encodeTodoListElementIntoTodoListObject } from './view scripts/encodeTodoListElementIntoTodoListObject_view';
 
 //data:modules (not sure about these modules they are kind of redundant)
@@ -74,12 +74,12 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyB4lhK5-F0YimGCrVrEiPkc-hihrAqVEz8",
-  authDomain: "todo-web-app-a7006.firebaseapp.com",
-  projectId: "todo-web-app-a7006",
-  storageBucket: "todo-web-app-a7006.appspot.com",
-  messagingSenderId: "1001588346863",
-  appId: "1:1001588346863:web:6836306c476f145e3fb01a"
+    apiKey: "AIzaSyB4lhK5-F0YimGCrVrEiPkc-hihrAqVEz8",
+    authDomain: "todo-web-app-a7006.firebaseapp.com",
+    projectId: "todo-web-app-a7006",
+    storageBucket: "todo-web-app-a7006.appspot.com",
+    messagingSenderId: "1001588346863",
+    appId: "1:1001588346863:web:6836306c476f145e3fb01a"
 };
 
 // Initialize Firebase
@@ -115,10 +115,103 @@ const app = initializeApp(firebaseConfig);
  * then write the logic in the imported file.
  * 
  */
-// start working on this tomorrow.
-  import {getAuth} from  'firebase/auth'
-  const auth = getAuth(app);
-  
+
+// Initialize Firebase Authentication and get a reference to the service
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth'
+const auth = getAuth(app);
+
+auth.onAuthStateChanged(function (user) {
+    if (user) {
+        // User is signed in.
+        var userInfoContainer = document.getElementById("user-info");
+        var signInButtonsContainer = document.getElementById("sign-in-buttons");
+
+        // Display user info and options.
+        userInfoContainer.style.display = "block";
+        signInButtonsContainer.style.display = "none";
+        userInfoContainer.innerHTML = "Welcome, " + user.displayName + "! <br> <button>Option 1</button> <button>Option 2</button> <button onclick='firebase.auth().signOut();'>Sign Out</button>";
+    } else {
+        // No user is signed in.
+        var userInfoContainer = document.getElementById("user-info");
+        var signInButtonsContainer = document.getElementById("sign-in-buttons");
+        
+        var signInButton = document.createElement('button');
+        signInButton.innerText = 'Sign In/ Sign Up';
+        signInButton.addEventListener("click", openPopup);
+        signInButtonsContainer.appendChild(signInButton);
+
+
+        // Display sign-in/sign-up buttons.
+        userInfoContainer.style.display = "none";
+        signInButtonsContainer.style.display = "block";
+
+    }
+});
+
+function openPopup() {
+    console.log('open something...')
+    var popup = document.getElementById("popup");
+    popup.style.display = "flex";
+
+    var closePopUpButton = document.getElementById("closePopUp");
+    closePopUpButton.addEventListener('click', closePopUp);
+
+    // add event listners to the sign in and signup buttons
+    // in the pop up form
+
+    let signUpButton = document.getElementById('sign-up-button');
+    signUpButton.addEventListener('click', handleSignUp)
+
+    let signInButton = document.getElementById('sign-in-button');
+    signInButton.addEventListener('click',handleSignIn);
+}
+
+function closePopUp(event) {
+    var popup = document.getElementById("popup");
+    popup.style.display = "none";
+}
+
+
+window.onclick = function (event) {
+    var popup = document.getElementById("popup");
+    if (event.target == popup) {
+        popup.style.display = "none";
+    }
+}
+
+
+function handleSignUp(){
+    console.log('implement tomorrow')
+}
+
+function handleSignIn(){
+    console.log('implement tomorrow as well')
+}
+
+// createUserWithEmailAndPassword(auth, email, password)
+//   .then((userCredential) => {
+//     // Signed in 
+//     const user = userCredential.user;
+//     // ...
+//   })
+//   .catch((error) => {
+//     const errorCode = error.code;
+//     const errorMessage = error.message;
+//     // ..
+//   });
+
+//   signInWithEmailAndPassword(auth, email, password)
+//   .then((userCredential) => {
+//     // Signed in 
+//     const user = userCredential.user;
+//     // ...
+//   })
+//   .catch((error) => {
+//     const errorCode = error.code;
+//     const errorMessage = error.message;
+//   });
+
+
 
 /**
  * 
@@ -377,14 +470,14 @@ document.addEventListener('DOMContentLoaded', () => {
         /**
          * set list inView as active list
          */
-         let savedLists = JSON.parse(getItemFromLocalStorage('savedLists'));
-         savedLists.forEach((x,index)=>{
-             if(index == getItemFromLocalStorage('listInViewIndex')){
-                 console.log(document.getElementById(x[0].uuid));
-                 document.getElementById(x[0].uuid).click();
-             }
-     
-            });
-        
+        let savedLists = JSON.parse(getItemFromLocalStorage('savedLists'));
+        savedLists.forEach((x, index) => {
+            if (index == getItemFromLocalStorage('listInViewIndex')) {
+                console.log(document.getElementById(x[0].uuid));
+                document.getElementById(x[0].uuid).click();
+            }
+
+        });
+
     }
 });
