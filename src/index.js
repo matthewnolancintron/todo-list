@@ -117,7 +117,7 @@ const app = initializeApp(firebaseConfig);
  */
 
 // Initialize Firebase Authentication and get a reference to the service
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
 const auth = getAuth(app);
 
 auth.onAuthStateChanged(function (user) {
@@ -134,7 +134,7 @@ auth.onAuthStateChanged(function (user) {
         // No user is signed in.
         var userInfoContainer = document.getElementById("user-info");
         var signInButtonsContainer = document.getElementById("sign-in-buttons");
-        
+
         var signInButton = document.createElement('button');
         signInButton.innerText = 'Sign In/ Sign Up';
         signInButton.addEventListener("click", openPopup);
@@ -159,18 +159,15 @@ function openPopup() {
     // add event listners to the sign in and signup buttons
     // in the pop up form
 
-    let signUpButton = document.getElementById('sign-up-button');
-    signUpButton.addEventListener('click', handleSignUp)
+    let sendEmailButton = document.getElementById('send-email-button');
+    sendEmailButton.addEventListener('click', authenticateEmail)
 
-    let signInButton = document.getElementById('sign-in-button');
-    signInButton.addEventListener('click',handleSignIn);
 }
 
 function closePopUp(event) {
     var popup = document.getElementById("popup");
     popup.style.display = "none";
 }
-
 
 window.onclick = function (event) {
     var popup = document.getElementById("popup");
@@ -180,36 +177,50 @@ window.onclick = function (event) {
 }
 
 
-function handleSignUp(){
-    console.log('implement tomorrow')
+// Validate email
+function validateEmail() {
+    // Email validation regex
+    const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    let email = document.getElementById("email").value;
+
+    let errorMessage = document.getElementById("error-message");
+    let emailErrorMessage = "Email address must be in the format of example@example.com.";
+
+    if (!emailRegex.test(email)) {
+        //show the error message
+        errorMessage.classList.add("show");
+        errorMessage.classList.remove("hide");
+
+        //set the error message.
+        errorMessage.innerHTML = emailErrorMessage;
+        return false;
+        //check if the error message is being displayed
+    } else if (window.getComputedStyle(errorMessage).display === 'block') {
+        //hide the error message
+        errorMessage.classList.add("hide");
+        errorMessage.classList.remove("show");
+    }
+    return true;
 }
 
-function handleSignIn(){
-    console.log('implement tomorrow as well')
+
+
+function authenticateEmail(event) {
+    event.preventDefault(); // prevent page reload
+    console.log('authenticate Email');
+    if (validateEmail()) {
+        // if errorMessage is showing from last attempt
+        //and the validations above where not triggered
+        //then hide it before moving on since validation
+        //has passed.
+        const email = document.querySelector('#email').value;
+        console.log(email);
+
+        //
+    }
+
+    //todo: don't foget to close popup window for user
 }
-
-// createUserWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     // ..
-//   });
-
-//   signInWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//   });
 
 
 
