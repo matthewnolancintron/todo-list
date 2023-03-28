@@ -117,33 +117,60 @@ const app = initializeApp(firebaseConfig);
  */
 
 // Initialize Firebase Authentication and get a reference to the service
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, sendSignInLinkToEmail, signInWithEmailLink, isSignInWithEmailLink, signOut } from 'firebase/auth'
 const auth = getAuth(app);
 
 auth.onAuthStateChanged(function (user) {
-    if (user) {
-        // User is signed in.
-        var userInfoContainer = document.getElementById("user-info");
-        var signInButtonsContainer = document.getElementById("sign-in-buttons");
+    const userInfoContainer = document.getElementById("user-info");
+    const signInButtonContainer = document.getElementById("sign-in-buttons");
+    const signOutButtonContainer = document.getElementById("sign-out-button-section")
+
+    if (user) { // User is signed in.
 
         // Display user info and options.
-        userInfoContainer.style.display = "block";
-        signInButtonsContainer.style.display = "none";
-        userInfoContainer.innerHTML = "Welcome, " + user.displayName + "! <br> <button>Option 1</button> <button>Option 2</button> <button onclick='firebase.auth().signOut();'>Sign Out</button>";
-    } else {
-        // No user is signed in.
-        var userInfoContainer = document.getElementById("user-info");
-        var signInButtonsContainer = document.getElementById("sign-in-buttons");
+        userInfoContainer.classList.remove("hide");
+        userInfoContainer.classList.add("show");
 
-        var signInButton = document.createElement('button');
+        //hide sign-in/sign-up buttons
+        signInButtonContainer.classList.remove('show');
+        signInButtonContainer.classList.add('hide');
+
+        //set content for userInfo
+        userInfoContainer.innerHTML = "Welcome, " + user.displayName + "! <br> <button>Option 1</button> <button>Option 2</button> <button onclick='firebase.auth().signOut();'>Sign Out</button>";
+
+        //create and addEventListner to sign out button
+        let signOutButton = document.createElement('button');
+        signOutButton.innerText = 'Sign out';
+        signOutButton.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                // Sign-out successful.
+            }).catch((error) => {
+                // An error happened.
+            });
+        });
+        signOutButtonContainer.appendChild(signOutButton);
+
+        //display the signOutButton Container
+        signOutButtonContainer.classList.remove('hide');
+        signOutButtonContainer.classList.add('show');
+
+
+    } else {// No user is signed in.
+
+        //create and addEventListner to sign in / sign up button
+        let signInButton = document.createElement('button');
         signInButton.innerText = 'Sign In/ Sign Up';
         signInButton.addEventListener("click", openPopup);
-        signInButtonsContainer.appendChild(signInButton);
+        signInButtonContainer.appendChild(signInButton);
 
 
-        // Display sign-in/sign-up buttons.
-        userInfoContainer.style.display = "none";
-        signInButtonsContainer.style.display = "block";
+        //hide userInfoContainer
+        userInfoContainer.classList.remove('show');
+        userInfoContainer.classList.add('hide');
+
+        // Display sign-in/sign-up button.
+        signInButtonContainer.classList.remove('hide');
+        signInButtonContainer.classList.add('show');
 
     }
 });
@@ -160,13 +187,14 @@ function openPopup() {
     // in the pop up form
 
     let sendEmailButton = document.getElementById('send-email-button');
-    sendEmailButton.addEventListener('click', authenticateEmail)
+    sendEmailButton.addEventListener('click', emailAuthenticationLink);
 
 }
 
 function closePopUp(event) {
     var popup = document.getElementById("popup");
-    popup.style.display = "none";
+    popup.classList.remove('show');
+    popup.classList.add('hide');
 }
 
 window.onclick = function (event) {
@@ -178,11 +206,9 @@ window.onclick = function (event) {
 
 
 // Validate email
-function validateEmail() {
+function validateEmail(email) {
     // Email validation regex
     const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    let email = document.getElementById("email").value;
-
     let errorMessage = document.getElementById("error-message");
     let emailErrorMessage = "Email address must be in the format of example@example.com.";
 
@@ -205,23 +231,76 @@ function validateEmail() {
 
 
 
-function authenticateEmail(event) {
+//update function name later...
+function emailAuthenticationLink(event) {
     event.preventDefault(); // prevent page reload
-    console.log('authenticate Email');
-    if (validateEmail()) {
-        // if errorMessage is showing from last attempt
-        //and the validations above where not triggered
-        //then hide it before moving on since validation
-        //has passed.
-        const email = document.querySelector('#email').value;
-        console.log(email);
+    const email = document.querySelector('#email').value;
+    const isEmailValid = validateEmail(email); //is true or false.
 
-        //
+    if (isEmailValid) {
+        //email is valid can continue the process
+        const actionCodeSettings = {
+            // URL you want to redirect back to. The domain (www.example.com) for this
+            // URL must be in the authorized domains list in the Firebase Console.
+            url: 'http://127.0.0.1:5500/dist/index.html',
+            // This must be true.
+            handleCodeInApp: true,
+        };
+
+        sendSignInLinkToEmail(auth, email, actionCodeSettings)
+            .then(() => {
+                // The link was successfully sent. Inform the user.
+                // Save the email locally so you don't need to ask the user for it again
+                // if they open the link on the same device.
+                window.localStorage.setItem('emailForSignIn', email);
+
+                // Confirm the link is a sign-in with email link.
+                if (isSignInWithEmailLink(auth, window.location.href)) {
+                    // Additional state parameters can also be passed via URL.
+                    // This can be used to continue the user's intended action before triggering
+                    // the sign-in operation.
+                    // Get the email if available. This should be available if the user completes
+                    // the flow on the same device where they started it.
+                    let email = window.localStorage.getItem('emailForSignIn');
+                    if (!email) {
+                        // User opened the link on a different device. To prevent session fixation
+                        // attacks, ask the user to provide the associated email again. For example:
+                        email = window.prompt('Please provide your email for confirmation');
+                    }
+                    // The client SDK will parse the code from the link for you.
+                    signInWithEmailLink(auth, email, window.location.href)
+                        .then((result) => {
+                            // Clear email from storage.
+                            window.localStorage.removeItem('emailForSignIn');
+                            // You can access the new user via result.user
+                            // Additional user info profile not available via:
+                            // result.additionalUserInfo.profile == null
+                            // You can check if the user is new or existing:
+                            // result.additionalUserInfo.isNewUser
+                        })
+                        .catch((error) => {
+                            // Some error occurred, you can inspect the code: error.code
+                            // Common errors could be invalid email and invalid or expired OTPs.
+                        });
+                }
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ...
+            });
+
+
     }
 
     //todo: don't foget to close popup window for user
+    closePopUp();
 }
 
+/**
+ * need to fix some error that is happening
+ * and add event listner to the close popup button. to call close pop up.
+ */
 
 
 /**
