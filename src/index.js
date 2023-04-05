@@ -69,8 +69,6 @@ import { getItemFromLocalStorage } from './data model scripts/getItemFromLocalSt
 /** -- firebase --  */
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -117,8 +115,44 @@ const app = initializeApp(firebaseConfig);
  */
 
 // Initialize Firebase Authentication and get a reference to the service
-import { getAuth, sendSignInLinkToEmail, signInWithEmailLink, isSignInWithEmailLink, signOut } from 'firebase/auth'
+import {
+    getAuth,
+    sendSignInLinkToEmail,
+    signInWithEmailLink,
+    isSignInWithEmailLink,
+    signOut,
+    fetchSignInMethodsForEmail,
+    connectAuthEmulator
+} from 'firebase/auth'
+
 const auth = getAuth(app);
+connectAuthEmulator(auth, "http://localhost:9099");
+
+/**
+ * to get started:
+ * 1:run npx webpack --watch
+ * 2:launch the live server for the index.html page
+ * 3:run 'firebase emulators:start' to launch the emulators
+ * 
+ * on first sign in attempt the terminal where the emulators 
+ * where launched it will complain saying:
+ * "
+ * canHandleCodeInApp is unsupported in Auth Emulator.
+ * All OOB operations will complete via web.
+ * "
+ * It then says that to sign in using the email that was just attempted
+ * to use the link it gives
+ * 
+ * visit that link and then repeat the sign in / sign up
+ * 
+ * but if you remove handleCodeInApp from the actionCodeSettings
+ * the process fail to complete so just ignore it
+ * 
+ * the emulator doesn't send an email but will test it without
+ * sending the email
+ * 
+ * using the emulator the sign in / sign up and sign out works
+ */
 
 auth.onAuthStateChanged(function (user) {
     const userInfoContainer = document.getElementById("user-info");
@@ -126,17 +160,43 @@ auth.onAuthStateChanged(function (user) {
     const signOutButtonContainer = document.getElementById("sign-out-button-section")
 
     if (user) { // User is signed in.
+        console.log(user, 'user info');
 
-        // Display user info and options.
-        userInfoContainer.classList.remove("hide");
-        userInfoContainer.classList.add("show");
+
+        if (!user.displayName) {
+            /**
+            Set the user's display name after they have signed up and signed in:
+            After the user clicks the sign-up link and signs in using the email link,
+            check if the user has a display name 
+            if they don't 
+                prompt them to enter their display name and update their profile using the updateProfile method.
+                Use the updateProfile method to set the user's display name.
+                make sure to validate the user's input and handle any errors that may occur during the process.
+    
+            if they do then just use the already set display name.
+             */
+            openPopup('setUserName');
+        } else {
+            // Display user info and options.
+            userInfoContainer.classList.remove("hide");
+            userInfoContainer.classList.add("show");
+
+            //set content for userInfo
+            userInfoContainer.innerHTML = user.displayName;
+        }
+
 
         //hide sign-in/sign-up buttons
         signInButtonContainer.classList.remove('show');
         signInButtonContainer.classList.add('hide');
 
-        //set content for userInfo
-        userInfoContainer.innerHTML = "Welcome, " + user.displayName + "! <br> <button>Option 1</button> <button>Option 2</button> <button onclick='firebase.auth().signOut();'>Sign Out</button>";
+
+        /**
+         * adding user menu feature
+         * Todo: handle adding user menu to display
+         *  What should it contain? 
+         *  what should it do?
+         */
 
         //create and addEventListner to sign out button
         let signOutButton = document.createElement('button');
@@ -144,6 +204,9 @@ auth.onAuthStateChanged(function (user) {
         signOutButton.addEventListener('click', () => {
             signOut(auth).then(() => {
                 // Sign-out successful.
+                //remove signout button from display:
+                signOutButtonContainer.classList.remove('show');
+                signOutButtonContainer.classList.add('hide');
             }).catch((error) => {
                 // An error happened.
             });
@@ -160,7 +223,7 @@ auth.onAuthStateChanged(function (user) {
         //create and addEventListner to sign in / sign up button
         let signInButton = document.createElement('button');
         signInButton.innerText = 'Sign In/ Sign Up';
-        signInButton.addEventListener("click", openPopup);
+        signInButton.addEventListener("click", () => { openPopup("signUpSignIn") });
         signInButtonContainer.appendChild(signInButton);
 
 
@@ -175,35 +238,48 @@ auth.onAuthStateChanged(function (user) {
     }
 });
 
-function openPopup() {
-    console.log('open something...')
-    var popup = document.getElementById("popup");
-    popup.style.display = "flex";
+function openPopup(type) {
+    //
+    let popup = document.getElementById(`popup_${type}`);
+    popup.classList.remove('hide');
+    popup.classList.add('show_flex');
 
-    var closePopUpButton = document.getElementById("closePopUp");
-    closePopUpButton.addEventListener('click', closePopUp);
 
-    // add event listners to the sign in and signup buttons
-    // in the pop up form
+    if (type === "signUpSignIn") {
+        //
+        let closePopUpButton = document.getElementById(`closePopUp_${type}`);
+        closePopUpButton.addEventListener('click', () => { closePopUp(`${type}`) });
 
-    let sendEmailButton = document.getElementById('send-email-button');
-    sendEmailButton.addEventListener('click', emailAuthenticationLink);
+        let sendEmailButton = document.getElementById('send-email-button');
+        sendEmailButton.addEventListener('click', emailAuthenticationLink);
+    }
+
+    if (type === "setUserName") {
+        const setUserNameForm = document.querySelector('#setUserName_form');
+        setUserNameForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleSetUserName();
+            return false;
+
+        });
+
+
+        let setDisplayNameButton = document.getElementById("setDisplayName");
+        setDisplayNameButton.addEventListener('click', handleSetUserName);
+        let remindMeLaterButton = document.getElementById("remindMeLater");
+        remindMeLaterButton.addEventListener('click', handleSetUserName);
+
+    }
+
 
 }
 
-function closePopUp(event) {
-    var popup = document.getElementById("popup");
-    popup.classList.remove('show');
+function closePopUp(type) {
+    let popup = document.getElementById(`popup_${type}`);
+    popup.classList.remove('show_flex');
     popup.classList.add('hide');
 }
-
-window.onclick = function (event) {
-    var popup = document.getElementById("popup");
-    if (event.target == popup) {
-        popup.style.display = "none";
-    }
-}
-
 
 // Validate email
 function validateEmail(email) {
@@ -229,8 +305,6 @@ function validateEmail(email) {
     return true;
 }
 
-
-
 //update function name later...
 function emailAuthenticationLink(event) {
     event.preventDefault(); // prevent page reload
@@ -242,7 +316,7 @@ function emailAuthenticationLink(event) {
         const actionCodeSettings = {
             // URL you want to redirect back to. The domain (www.example.com) for this
             // URL must be in the authorized domains list in the Firebase Console.
-            url: 'http://127.0.0.1:5500/dist/index.html',
+            url: 'http://myapp.local:5500/dist/index.html',
             // This must be true.
             handleCodeInApp: true,
         };
@@ -281,6 +355,7 @@ function emailAuthenticationLink(event) {
                         .catch((error) => {
                             // Some error occurred, you can inspect the code: error.code
                             // Common errors could be invalid email and invalid or expired OTPs.
+                            console.log('sign in failed')
                         });
                 }
             })
@@ -288,20 +363,148 @@ function emailAuthenticationLink(event) {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 // ...
+                console.log('send link failed')
+                console.log(errorMessage);
+                console.log(errorCode);
             });
 
 
     }
 
     //todo: don't foget to close popup window for user
-    closePopUp();
+    // closePopUp();
 }
 
-/**
- * need to fix some error that is happening
- * and add event listner to the close popup button. to call close pop up.
- */
 
+async function handleSetUserName(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (event.target.id === `setDisplayName`) {
+        console.log('user choose to set username');
+        //set content for userInfo
+        // userInfoContainer.innerHTML = user.displayName;
+        const userName = document.querySelector('#userName').value;
+        const errorMessage = document.getElementById("error-message_setUserName");
+        try {
+            const isUserNameValid = await validateUserName(userName);
+            console.log(isUserNameValid, '00000');
+            if (isUserNameValid.valid) {
+                //hide the error message jsut incase its showing
+                errorMessage.classList.remove("show");
+                errorMessage.classList.add("hide");
+
+            } else {
+                //username is not valid show error to user
+                //show the error message
+                errorMessage.classList.add("show");
+                errorMessage.classList.remove("hide");
+
+                //set the error message.
+                errorMessage.innerHTML = isUserNameValid.error;
+            }
+        } catch (error) {
+            console.error(error);
+
+        }
+
+
+
+
+    }
+
+    if (event.target.id === `remindMeLater`) {
+        console.log('user choose to be reminded later');
+        // instead of setting a username 
+        //show a button that opens the pop up for setting username
+        // with a message right next to it.
+    }
+
+    return false;
+
+}
+
+
+import {
+    getFirestore,
+    connectFirestoreEmulator,
+    collection,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
+
+const db = getFirestore(app);
+// connectFirestoreEmulator(db, 'localhost', 8080);
+
+async function isDisplayNameAvailable(displayName) {
+    console.log(typeof displayName);
+    try {
+        const usersRef = collection(db, "users"); // assuming "users" is the name of the collection
+        const q = query(usersRef, where("displayName", "==", displayName));
+        const querySnapshot = await getDocs(q);
+        console.log(querySnapshot.empty, '??????????????????????');
+        return querySnapshot.empty;
+    } catch (error) {
+        /**
+         * after trying various security rules such as:
+         * 
+        rules_version = '2';
+            service cloud.firestore {
+            match / databases / { database } / documents {
+                // Allow read/write access to the "users" collection for authenticated users
+                match / users / { userId } {
+                  allow read, write: if request.auth != null && request.auth.uid == userId;
+                }
+            }
+        }
+
+        and 
+
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /{document=**} {
+              allow read, write: if
+                  request.time < timestamp.date(2023, 5, 10);
+            }
+          }
+        }
+
+        I was still getting permission errors and unable to to work with firestore.
+
+        this branches journey comes to an end, I might try another Baas or just use node instead.
+        I'm deleting the firebase project but will keep this branch to look back on if I decide to work on this project again
+        in the future.
+         */
+        console.log('error for checking if displayName is avaliable', error);
+    }
+}
+
+
+async function validateUserName(username) {
+    try {
+        if (!isDisplayNameAvailable(username)) {
+            // if(true){
+            // username is already taken
+            return { valid: false, error: 'Username is already taken' };
+        } else if (username.length < 3 || username.length > 20) {
+            // username is too short or too long
+            return { valid: false, error: 'Username must be between 3 and 20 characters' };
+        } else if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+            // username contains invalid characters
+            return { valid: false, error: 'Username may only contain letters, numbers, underscores, or hyphens' };
+        } else {
+            // username is valid
+            return { valid: true };
+        }
+
+    } catch (error) {
+        // handle error
+        console.error(error);
+        return { valid: false, error: 'An error occurred while validating the username' };
+    }
+}
 
 /**
  * 
