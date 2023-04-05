@@ -587,19 +587,27 @@ input:checked~.icon-box {
 
 
 
+.popup{
+   position:fixed;
+   top:0;
+   bottom:0;
+   left:0;
+   right:0;
+   background-color:rgba(0,0,0,0.5);
+   z-index:999;
+   justify-content:center;
+   align-items:center;
+}
 
 /* Popup container */
-#popup {
-  display: none;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  justify-content: center;
-  align-items: center;
+/* #popup_signUpSignIn {
+  
+} */
+
+.popup_formContainer{
+  background-color:white;
+  padding:20px;
+  border-radius:5px;
 }
 
 .popup-header {
@@ -609,7 +617,7 @@ input:checked~.icon-box {
   padding: 5px;
 }
 
-#closePopUp {
+.popup-close {
   font-size: 32px;
   font-weight: bold;
   color: #555;
@@ -618,12 +626,29 @@ input:checked~.icon-box {
   cursor: pointer;
 }
 
-#closePopUp:hover {
+.setUserNameButtons{
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  gap:3%;
+}
+
+#remindMeLater{
+  background-color: lightgrey;
+  color:black;
+}
+
+#remindMeLater:hover{
+  background-color:darkgrey;
+  color:white;
+}
+
+.popup-close:hover {
   color: #000;
 }
 
 /* Form container */
-#popup form {
+.popup form {
   background-color: white;
   padding: 20px;
   border-radius: 5px;
@@ -632,9 +657,9 @@ input:checked~.icon-box {
 }
 
 /* Form inputs */
-#popup form input[type="email"],
-#popup form input[type="password"],
-#popup form input[type="text"] {
+.popup form input[type="email"],
+.popup form input[type="password"],
+.popup form input[type="text"] {
   width: 100%;
   padding: 10px;
   margin-bottom: 20px;
@@ -644,7 +669,7 @@ input:checked~.icon-box {
 }
 
 /* Form buttons */
-#popup form button {
+.popup form button {
   display: block;
   width: 100%;
   padding: 10px;
@@ -658,12 +683,12 @@ input:checked~.icon-box {
 }
 
 /* Form buttons hover */
-#popup form button:hover {
+.popup form button:hover {
   background-color: #3e8e41;
 }
 
 /* Close button */
-#popup .close-btn {
+.popup .close-btn {
   position: absolute;
   top: 10px;
   right: 10px;
@@ -674,12 +699,12 @@ input:checked~.icon-box {
 
 /* Responsive styles */
 @media only screen and (max-width: 600px) {
-  #popup form {
+  .popup form {
     max-width: 90%;
   }
 }
 
-#error-message{
+#error-message #error-message_setUserName{
    color:red;
 }
 
@@ -689,4 +714,8 @@ input:checked~.icon-box {
 
 .show {
   display: block;
+}
+
+.show_flex{
+  display:flex;
 }
