@@ -1,0 +1,10 @@
+// Allow a user that is signed in to only
+// be able to read and write to their data
+// which is stored as an object inside of a users collection:
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
