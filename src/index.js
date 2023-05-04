@@ -1,48 +1,3 @@
-/** 
- extra features:
- recurring due dates for building habits
- every monday at 8am...
- steps/sub-tasks and sections for individule todos
- create labels for todos
- filter todos
- light and dark and green theme
- */
-
-/**
- * separate application logic 
- * creating new todo setting todos as complete
- * changing todo priority etc from dom-related stuff
- * keep all of that in separate modules
- * 
- * my plan:
- * use MVC architecture.
- * 
- * model modules for application state
- * view modules for GUI/DOM manipulation
- * 
- * controller will be index.js and the user
- * 
- */
-
-//to run the application
-//npx webpack or npx webpack --watch
-//and turn on live server
-
-/**
- * 0:create controller
- *  -orchestrate view scrips in index.js
- *    possible delete view.js or find a different use for it
- *    while calling modules from view scripts within index.js
- *    also call modules from data scripts and handle passing 
- *    information back and forth between model and view when needed  
- * 
- * 1:build data modules
- * -separate data(local storage) from view 
- * 
- *  after completing the above this project is completed for now move
- *  on to the next steps in the TOP
- */
-
 import './styles.css'
 
 //view: modules
@@ -72,47 +27,16 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyB4lhK5-F0YimGCrVrEiPkc-hihrAqVEz8",
-    authDomain: "todo-web-app-a7006.firebaseapp.com",
-    projectId: "todo-web-app-a7006",
-    storageBucket: "todo-web-app-a7006.appspot.com",
-    messagingSenderId: "1001588346863",
-    appId: "1:1001588346863:web:6836306c476f145e3fb01a"
+    apiKey: "AIzaSyD_xtUqcZkwGDz3mvr6Q6TR0qyEYmUlGSs",
+    authDomain: "todo-ab6e0.firebaseapp.com",
+    projectId: "todo-ab6e0",
+    storageBucket: "todo-ab6e0.appspot.com",
+    messagingSenderId: "589279456370",
+    appId: "1:589279456370:web:47ae5656b228012ac0a6eb"
 };
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-/**
- * check and learn how to use:
- * Cloud Firestore
- * Authentication
- * 
- */
-
-/**
- * add a sign in option to my todo application
- * using firebase auth 
- * 
- * todo:
- * add sign in button to the interface,
- * 
- * if user is not logged in add a sign in/sign up button to the
- * header element 
- * if the are signed in then display their user name and a
- * log out button
- * 
- * probably make a script to handle this logic
- * 
- * such as handleLoginState
- * 
- * I would check if userloged in or not here 
- * once the document is ready and then
- * set the event here using the imported
- * script and function that handles that logic
- * then write the logic in the imported file.
- * 
- */
 
 // Initialize Firebase Authentication and get a reference to the service
 import {
@@ -121,60 +45,103 @@ import {
     signInWithEmailLink,
     isSignInWithEmailLink,
     signOut,
-    fetchSignInMethodsForEmail,
-    connectAuthEmulator
+    connectAuthEmulator,
+    updateProfile,
 } from 'firebase/auth'
 
 const auth = getAuth(app);
 connectAuthEmulator(auth, "http://localhost:9099");
 
+
 /**
- * to get started:
- * 1:run npx webpack --watch
- * 2:launch the live server for the index.html page
- * 3:run 'firebase emulators:start' to launch the emulators
  * 
- * on first sign in attempt the terminal where the emulators 
- * where launched it will complain saying:
- * "
- * canHandleCodeInApp is unsupported in Auth Emulator.
- * All OOB operations will complete via web.
- * "
- * It then says that to sign in using the email that was just attempted
- * to use the link it gives
+ * users collection 
  * 
- * visit that link and then repeat the sign in / sign up
- * 
- * but if you remove handleCodeInApp from the actionCodeSettings
- * the process fail to complete so just ignore it
- * 
- * the emulator doesn't send an email but will test it without
- * sending the email
- * 
- * using the emulator the sign in / sign up and sign out works
+ * users
+├── userId1
+│   ├── displayName: "John Doe"
+│   ├── email: "johndoe@example.com"
+│   └── ...
+├── userId2
+│   ├── displayName: "Jane Doe"
+│   ├── email: "janedoe@example.com"
+│   └── ...
+├── ...
+
+could also use this to store users data such as todo info.
  */
 
-auth.onAuthStateChanged(function (user) {
+import {
+    getFirestore,
+    connectFirestoreEmulator,
+    collection,
+    addDoc,
+    doc,
+    setDoc,
+    getDocs,
+    updateDoc,
+    where,
+    query,
+} from "firebase/firestore";
+
+const db = getFirestore(app);
+connectFirestoreEmulator(db, 'localhost', 8080);
+
+auth.onAuthStateChanged(async function (user) {
     const userInfoContainer = document.getElementById("user-info");
     const signInButtonContainer = document.getElementById("sign-in-buttons");
     const signOutButtonContainer = document.getElementById("sign-out-button-section")
 
-    if (user) { // User is signed in.
-        console.log(user, 'user info');
+    if (user) {// User is signed in.
+        const { displayName, email, uid } = user;
 
+        /**
+         * checking if user document with user data is already in
+         * users collection if not creating a new document and 
+         * creating userData then adding it to the user collection.
+         */
+        try {
+            const querySnapshot = await getDocs(collection(db, "users"));
+            let isUserDataInUsersCollection;
 
+            querySnapshot.forEach((doc) => {
+                if (doc.id === uid) {
+                    isUserDataInUsersCollection = true;
+                }
+            });
+
+            //if user is not in users collection
+            if (!isUserDataInUsersCollection) {
+                /**
+                 * create user data and add it to a new document
+                 * add that document to the users collection
+                 */
+
+                // reference to users collection in firestore database
+                const usersCollectionRef = collection(db, 'users');
+
+                //create usersData object
+                const userData = {
+                    displayName: user.displayName,
+                    email: user.email,
+                    //todo: add more later
+                }
+
+                //create new document in usersCollection 
+                // that has document id set to the users uid from auth
+                const userDocumentRef = doc(usersCollectionRef, uid);
+
+                //set usersData to the newly added user document
+                await setDoc(userDocumentRef, userData);
+            }
+
+        } catch (e) {
+            console.log(e);
+        }
+
+        //if display name is null prompt user to set display name
         if (!user.displayName) {
-            /**
-            Set the user's display name after they have signed up and signed in:
-            After the user clicks the sign-up link and signs in using the email link,
-            check if the user has a display name 
-            if they don't 
-                prompt them to enter their display name and update their profile using the updateProfile method.
-                Use the updateProfile method to set the user's display name.
-                make sure to validate the user's input and handle any errors that may occur during the process.
-    
-            if they do then just use the already set display name.
-             */
+            console.log('set username then?')
             openPopup('setUserName');
         } else {
             // Display user info and options.
@@ -185,11 +152,9 @@ auth.onAuthStateChanged(function (user) {
             userInfoContainer.innerHTML = user.displayName;
         }
 
-
         //hide sign-in/sign-up buttons
         signInButtonContainer.classList.remove('show');
         signInButtonContainer.classList.add('hide');
-
 
         /**
          * adding user menu feature
@@ -216,8 +181,6 @@ auth.onAuthStateChanged(function (user) {
         //display the signOutButton Container
         signOutButtonContainer.classList.remove('hide');
         signOutButtonContainer.classList.add('show');
-
-
     } else {// No user is signed in.
 
         //create and addEventListner to sign in / sign up button
@@ -244,7 +207,6 @@ function openPopup(type) {
     popup.classList.remove('hide');
     popup.classList.add('show_flex');
 
-
     if (type === "signUpSignIn") {
         //
         let closePopUpButton = document.getElementById(`closePopUp_${type}`);
@@ -261,7 +223,6 @@ function openPopup(type) {
             event.stopPropagation();
             handleSetUserName();
             return false;
-
         });
 
 
@@ -316,7 +277,7 @@ function emailAuthenticationLink(event) {
         const actionCodeSettings = {
             // URL you want to redirect back to. The domain (www.example.com) for this
             // URL must be in the authorized domains list in the Firebase Console.
-            url: 'http://myapp.local:5500/dist/index.html',
+            url: 'http://127.0.0.1:5500',
             // This must be true.
             handleCodeInApp: true,
         };
@@ -388,11 +349,72 @@ async function handleSetUserName(event) {
         const errorMessage = document.getElementById("error-message_setUserName");
         try {
             const isUserNameValid = await validateUserName(userName);
-            console.log(isUserNameValid, '00000');
+            console.log('isUserNameValid', isUserNameValid);
             if (isUserNameValid.valid) {
                 //hide the error message jsut incase its showing
                 errorMessage.classList.remove("show");
                 errorMessage.classList.add("hide");
+                // Update the user's display name
+                updateProfile(auth.currentUser, {
+                    displayName:userName
+                }).then(async function(){
+                    // Display name updated successfully
+                    //update user data in firestore
+                    const userRef = doc(db,"users",auth.currentUser.uid);
+    
+                    await updateDoc(userRef,{
+                        displayName:userName
+                    });
+
+                }).catch((error) => {
+                    // Error updating display name
+                    console.log(error, 'updateProfile Error');
+                });
+
+                /**
+                 * contine tomorrow try for about 3h
+                 * 
+                 * firebase emulators:start --import=./fireStoreEmulatorData --export-on-exit
+                 * 
+                 * successfuly added user to database
+                 * and allowed user to set display names
+                 * updating info in auth and firestore.
+                 * 
+                 * now need to close prompt when completing 
+                 * that process.
+                 * 
+                 * and update the interface to display
+                 * the display name for the user
+                 * 
+                 * also need to work on the remind me
+                 * later aspect of the set display name
+                 * 
+                 * also need to test sign in for a user
+                 * that already has set their user name
+                 * 
+                 * from their just look around the comment
+                 * to what to work on next most likely 
+                 * 
+                 * adding todo data to each user document
+                 * and migrating it from local into that
+                 * field in the user document
+                 * 
+                 * then test sign in sign out with existing
+                 * user to make data for each user is being
+                 * retrived and displayed correctetly
+                 * 
+                 * then explore offline functionality
+                 * and try to implement
+                 * 
+                 * then figure out hosting with github pages
+                 * to have a prototype running to share
+                 * also try to get it working the the emulator
+                 * only to save on costs reduce risk of being
+                 * charged.
+                 * 
+                 * 
+                 * 
+                 */
 
             } else {
                 //username is not valid show error to user
@@ -405,12 +427,7 @@ async function handleSetUserName(event) {
             }
         } catch (error) {
             console.error(error);
-
         }
-
-
-
-
     }
 
     if (event.target.id === `remindMeLater`) {
@@ -421,71 +438,43 @@ async function handleSetUserName(event) {
     }
 
     return false;
-
 }
 
-
-import {
-    getFirestore,
-    connectFirestoreEmulator,
-    collection,
-    getDocs,
-    query,
-    where,
-} from "firebase/firestore";
-
-const db = getFirestore(app);
-// connectFirestoreEmulator(db, 'localhost', 8080);
-
-async function isDisplayNameAvailable(displayName) {
-    console.log(typeof displayName);
+async function isDisplayNameNotAvailable(displayName) {
     try {
-        const usersRef = collection(db, "users"); // assuming "users" is the name of the collection
-        const q = query(usersRef, where("displayName", "==", displayName));
+
+        // Construct a reference to the 'users' collection
+        const usersRef = collection(db, 'users');
+
+        // Construct a query for documents where the 'displayName' field is equal to the provided display name
+        const q = query(usersRef, where('displayName', '==', displayName));
+
+        // Execute the query and get a snapshot of the results
         const querySnapshot = await getDocs(q);
-        console.log(querySnapshot.empty, '??????????????????????');
-        return querySnapshot.empty;
+
+        // Check if any documents were returned from the query
+        if (!querySnapshot.empty) {
+            // Username is already taken
+            console.log('Username is not available');
+            return true;
+        }
+
+        // Username is available
+        console.log('Username is available');
+        return false;
     } catch (error) {
-        /**
-         * after trying various security rules such as:
-         * 
-        rules_version = '2';
-            service cloud.firestore {
-            match / databases / { database } / documents {
-                // Allow read/write access to the "users" collection for authenticated users
-                match / users / { userId } {
-                  allow read, write: if request.auth != null && request.auth.uid == userId;
-                }
-            }
-        }
-
-        and 
-
-        rules_version = '2';
-        service cloud.firestore {
-          match /databases/{database}/documents {
-            match /{document=**} {
-              allow read, write: if
-                  request.time < timestamp.date(2023, 5, 10);
-            }
-          }
-        }
-
-        I was still getting permission errors and unable to to work with firestore.
-
-        this branches journey comes to an end, I might try another Baas or just use node instead.
-        I'm deleting the firebase project but will keep this branch to look back on if I decide to work on this project again
-        in the future.
-         */
-        console.log('error for checking if displayName is avaliable', error);
+        // Error querying Firestore
+        console.log('Error querying Firestore: ', error);
     }
 }
 
 
 async function validateUserName(username) {
+    console.log(username);
     try {
-        if (!isDisplayNameAvailable(username)) {
-            // if(true){
+        const isUserNameNotAvalible = await isDisplayNameNotAvailable(username);
+        console.log(isUserNameNotAvalible);
+        if (isUserNameNotAvalible) {
             // username is already taken
             return { valid: false, error: 'Username is already taken' };
         } else if (username.length < 3 || username.length > 20) {
@@ -544,7 +533,7 @@ async function validateUserName(username) {
  * and Firebase Cloud Messaging (FCM).
  * To get started with adding offline functionality
  * to your web app using Firebase,
- * you can refer to the official Firebase documentation,
+     * you can refer to the official Firebase documentation,
  * which provides detailed guides and tutorials on implementing
  * these features in your app.
  * 
@@ -561,13 +550,6 @@ async function validateUserName(username) {
  * and Firebase Cloud Messaging (FCM).
  * 
  */
-
-
-/** -- firebase -- */
-
-
-
-
 
 
 /**
