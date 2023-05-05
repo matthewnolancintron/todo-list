@@ -20,7 +20,6 @@ import { encodeTodoListElementIntoTodoListObject } from './view scripts/encodeTo
 import { setItemAndValueInLocalStorage } from './data model scripts/setItemAndValueInLocalStorage_data.js';
 import { getItemFromLocalStorage } from './data model scripts/getItemFromLocalStorage_data.js'
 
-
 /** -- firebase --  */
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
@@ -52,7 +51,6 @@ import {
 const auth = getAuth(app);
 connectAuthEmulator(auth, "http://localhost:9099");
 
-
 /**
  * 
  * users collection 
@@ -67,15 +65,12 @@ connectAuthEmulator(auth, "http://localhost:9099");
 │   ├── email: "janedoe@example.com"
 │   └── ...
 ├── ...
-
-could also use this to store users data such as todo info.
  */
 
 import {
     getFirestore,
     connectFirestoreEmulator,
     collection,
-    addDoc,
     doc,
     setDoc,
     getDocs,
@@ -88,13 +83,10 @@ const db = getFirestore(app);
 connectFirestoreEmulator(db, 'localhost', 8080);
 
 auth.onAuthStateChanged(async function (user) {
-    const userInfoContainer = document.getElementById("user-info");
     const signInButtonContainer = document.getElementById("sign-in-buttons");
     const signOutButtonContainer = document.getElementById("sign-out-button-section")
-
     if (user) {// User is signed in.
         const { displayName, email, uid } = user;
-
         /**
          * checking if user document with user data is already in
          * users collection if not creating a new document and 
@@ -124,7 +116,7 @@ auth.onAuthStateChanged(async function (user) {
                 const userData = {
                     displayName: user.displayName,
                     email: user.email,
-                    //todo: add more later
+                    todoLists:[],
                 }
 
                 //create new document in usersCollection 
@@ -141,27 +133,14 @@ auth.onAuthStateChanged(async function (user) {
 
         //if display name is null prompt user to set display name
         if (!user.displayName) {
-            console.log('set username then?')
             openPopup('setUserName');
         } else {
-            // Display user info and options.
-            userInfoContainer.classList.remove("hide");
-            userInfoContainer.classList.add("show");
-
-            //set content for userInfo
-            userInfoContainer.innerHTML = user.displayName;
+            handleUserInfoDisplay('show');
         }
 
         //hide sign-in/sign-up buttons
         signInButtonContainer.classList.remove('show');
         signInButtonContainer.classList.add('hide');
-
-        /**
-         * adding user menu feature
-         * Todo: handle adding user menu to display
-         *  What should it contain? 
-         *  what should it do?
-         */
 
         //create and addEventListner to sign out button
         let signOutButton = document.createElement('button');
@@ -176,6 +155,7 @@ auth.onAuthStateChanged(async function (user) {
                 // An error happened.
             });
         });
+
         signOutButtonContainer.appendChild(signOutButton);
 
         //display the signOutButton Container
@@ -184,15 +164,14 @@ auth.onAuthStateChanged(async function (user) {
     } else {// No user is signed in.
 
         //create and addEventListner to sign in / sign up button
-        let signInButton = document.createElement('button');
-        signInButton.innerText = 'Sign In/ Sign Up';
+        let signInButton = document.getElementById('signInSignUpButton');
+        
         signInButton.addEventListener("click", () => { openPopup("signUpSignIn") });
         signInButtonContainer.appendChild(signInButton);
 
 
         //hide userInfoContainer
-        userInfoContainer.classList.remove('show');
-        userInfoContainer.classList.add('hide');
+        handleUserInfoDisplay('hide');
 
         // Display sign-in/sign-up button.
         signInButtonContainer.classList.remove('hide');
@@ -225,12 +204,10 @@ function openPopup(type) {
             return false;
         });
 
-
         let setDisplayNameButton = document.getElementById("setDisplayName");
         setDisplayNameButton.addEventListener('click', handleSetUserName);
         let remindMeLaterButton = document.getElementById("remindMeLater");
         remindMeLaterButton.addEventListener('click', handleSetUserName);
-
     }
 
 
@@ -266,7 +243,6 @@ function validateEmail(email) {
     return true;
 }
 
-//update function name later...
 function emailAuthenticationLink(event) {
     event.preventDefault(); // prevent page reload
     const email = document.querySelector('#email').value;
@@ -323,7 +299,6 @@ function emailAuthenticationLink(event) {
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                // ...
                 console.log('send link failed')
                 console.log(errorMessage);
                 console.log(errorCode);
@@ -331,18 +306,31 @@ function emailAuthenticationLink(event) {
 
 
     }
-
     //todo: don't foget to close popup window for user
-    // closePopUp();
+    closePopUp("signUpSignIn");
 }
 
+function handleUserInfoDisplay(type){
+    const userInfoContainer = document.getElementById("user-info");
+    if(type === 'show'){
+        userInfoContainer.classList.remove("hide");
+        userInfoContainer.classList.add("show");
+    
+        //set content for userInfo
+        userInfoContainer.innerHTML = auth.currentUser.displayName;
+    }
+
+    if(type === 'hide'){
+        userInfoContainer.classList.remove('show');
+        userInfoContainer.classList.add('hide');
+    }
+}
 
 async function handleSetUserName(event) {
     event.preventDefault();
     event.stopPropagation();
 
     if (event.target.id === `setDisplayName`) {
-        console.log('user choose to set username');
         //set content for userInfo
         // userInfoContainer.innerHTML = user.displayName;
         const userName = document.querySelector('#userName').value;
@@ -366,56 +354,27 @@ async function handleSetUserName(event) {
                         displayName:userName
                     });
 
+                    /**close the pop ups */
+                    closePopUp("setUserName");
+                    closePopUp("signUpSignIn");
+
+                    // Display user info and options.
+                    handleUserInfoDisplay('show');
+
+                    //hide set username button if needed
+                    const setUserNameButtonSection = document.getElementById("setUser-button-section");
+
+                    if(setUserNameButtonSection.classList.contains('show')){
+                        setUserNameButtonSection.classList.remove('show');
+                        setUserNameButtonSection.classList.add('hide');
+                    }
+
                 }).catch((error) => {
                     // Error updating display name
                     console.log(error, 'updateProfile Error');
                 });
 
-                /**
-                 * contine tomorrow try for about 3h
-                 * 
-                 * firebase emulators:start --import=./fireStoreEmulatorData --export-on-exit
-                 * 
-                 * successfuly added user to database
-                 * and allowed user to set display names
-                 * updating info in auth and firestore.
-                 * 
-                 * now need to close prompt when completing 
-                 * that process.
-                 * 
-                 * and update the interface to display
-                 * the display name for the user
-                 * 
-                 * also need to work on the remind me
-                 * later aspect of the set display name
-                 * 
-                 * also need to test sign in for a user
-                 * that already has set their user name
-                 * 
-                 * from their just look around the comment
-                 * to what to work on next most likely 
-                 * 
-                 * adding todo data to each user document
-                 * and migrating it from local into that
-                 * field in the user document
-                 * 
-                 * then test sign in sign out with existing
-                 * user to make data for each user is being
-                 * retrived and displayed correctetly
-                 * 
-                 * then explore offline functionality
-                 * and try to implement
-                 * 
-                 * then figure out hosting with github pages
-                 * to have a prototype running to share
-                 * also try to get it working the the emulator
-                 * only to save on costs reduce risk of being
-                 * charged.
-                 * 
-                 * 
-                 * 
-                 */
-
+                
             } else {
                 //username is not valid show error to user
                 //show the error message
@@ -431,10 +390,24 @@ async function handleSetUserName(event) {
     }
 
     if (event.target.id === `remindMeLater`) {
-        console.log('user choose to be reminded later');
         // instead of setting a username 
         //show a button that opens the pop up for setting username
         // with a message right next to it.
+        const setUserNameButtonSection = document.getElementById("setUser-button-section");
+        let setUserNameButton = document.getElementById("setUserNameButton");
+
+        setUserNameButton.innerText = 'setUserName';
+        setUserNameButton.addEventListener('click', () => {
+            openPopup('setUserName');
+        });
+
+        setUserNameButtonSection.appendChild(setUserNameButton);
+
+        //display the signOutButton Container
+        setUserNameButtonSection.classList.remove('hide');
+        setUserNameButtonSection.classList.add('show');
+
+        closePopUp('setUserName');
     }
 
     return false;
@@ -468,7 +441,6 @@ async function isDisplayNameNotAvailable(displayName) {
     }
 }
 
-
 async function validateUserName(username) {
     console.log(username);
     try {
@@ -494,63 +466,6 @@ async function validateUserName(username) {
         return { valid: false, error: 'An error occurred while validating the username' };
     }
 }
-
-/**
- * 
-   update data stored and retrieved from local storage
-   to instead have data for users todo information
-   saved and retrieved to and from fire storage
- */
-//   import {getFireStore} from 'firebase/firestore'
-//   const db = getFireStore(app);;
-
-
-/**
- * add offline feature:
- * 
- * 
- * advice for service that could be used for this 
- * from chatGPT:
- * Firebase offers several features that can be used for 
- * offline functionality in your web app.
- * One option is to use Cloud Firestore,
- * which provides offline data persistence.
- * With this feature, your app can continue to read and write data
- * even when it's offline, and the data will automatically sync
- * with the server once the device goes back online.
- * Another option is to use Firebase Realtime Database,
- * which also supports offline data persistence.
- * With this feature, your app can cache data locally
- * and use it even when it's offline,
- * and the data will be synchronized with the server once
- * the device goes back online.
- * In addition to these options,
- * Firebase also provides a set of offline synchronization tools
- * for handling network connectivity issues,
- * 
- * such as Firebase Offline Data Access (ODA),
- * Firebase Database Persistence,
- * and Firebase Cloud Messaging (FCM).
- * To get started with adding offline functionality
- * to your web app using Firebase,
-     * you can refer to the official Firebase documentation,
- * which provides detailed guides and tutorials on implementing
- * these features in your app.
- * 
- * I'm going to use this option:
- * Cloud Firestore,
- * which provides offline data persistence.
- * With this feature, your app can continue to read and write data
- * even when it's offline, and the data will automatically sync
- * with the server once the device goes back online.
- * 
- * I'm going to check the documentation for theses:
- * Firebase Offline Data Access (ODA),
- * Firebase Database Persistence,
- * and Firebase Cloud Messaging (FCM).
- * 
- */
-
 
 /**
      * both todo lists and todo's id's get are a uuid
@@ -610,16 +525,13 @@ document.addEventListener('DOMContentLoaded', () => {
     //
     addEventToRepeatOptions(repeat_options, dayOfTheWeekSelector);
 
-
     /*add todo form when user presses add todo button*/
     let addTodoButton = document.querySelector('.add_Todo');
     let addTodoForm = document.querySelector('.addTodoForm_inactive');
 
-
     let numRepeatElement = document.getElementById('times');
     numRepeatElement.value = "";
-    //console.log(repeat_options);
-    //
+
     addEventToAddTodoButton(addTodoButton, addTodoForm, numRepeatElement);
 
     switch (document.getElementsByClassName("toggle_repeat_OFF")[0].textContent) {
@@ -667,7 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
          * will update via add active list func
          */
         setItemAndValueInLocalStorage('indexOfActiveListInSavedLists', 0);
-
 
         /**
          * intialize default appliation state:
