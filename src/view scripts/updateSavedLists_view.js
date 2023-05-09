@@ -1,22 +1,19 @@
 export { updateSavedLists };
 import { encodeTodoListElementIntoTodoListObject } from './encodeTodoListElementIntoTodoListObject_view.js';
 import { updateOptionInPlaceInListFormField } from './updateOptionInPlaceInListFormField_view.js';
+import {updateUserFireStoreData} from '../updateUserFireStoreData.js'
 
 //used to help the intened data model and view insync
 function updateSavedLists(list, updateMethod) {
-  console.log(list,'list');
-  /**
+  /*
    * encode list element into list object 
    */
   let listObject = encodeTodoListElementIntoTodoListObject(list);
 
   //get savedLists from local storage
   let savedLists = JSON.parse(localStorage.getItem('savedLists'));
-  console.log(savedLists, 'savedListsFrom local storage');
 
-  /**
-   * turn savedLists from string into an array
-   */
+  updateUserFireStoreData('list',updateMethod,listObject);
 
   //  
   switch (updateMethod) {
@@ -41,7 +38,7 @@ function updateSavedLists(list, updateMethod) {
 
       //filter out the list.id being deleted
       //savedLists = savedLists.filter(element => element.id != list.id);
-      savedLists.splice(indexOfListToDelete,1);
+      savedLists.splice(indexOfListToDelete, 1);
 
       break;
     case 'renameList':
@@ -49,8 +46,8 @@ function updateSavedLists(list, updateMethod) {
       /**
        * find location of list in savedLists and update the listName Property
        */
-      savedLists.forEach((list,index) => {
-        if(list[0].uuid == listObject.uuid){
+      savedLists.forEach((list, index) => {
+        if (list[0].uuid == listObject.uuid) {
           list[0].listName = listObject.listName;
         }
       });
@@ -61,5 +58,4 @@ function updateSavedLists(list, updateMethod) {
 
   //update local storage
   localStorage.setItem('savedLists', JSON.stringify(savedLists));
-
 }
