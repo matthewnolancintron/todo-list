@@ -4,7 +4,6 @@
     function updateOptionInPlaceInListFormField(methodOfChange, nameOfList, indexOfListInSavedListsArray) {
         //for form move todo to list
         let placeInList_form = document.getElementById("placeInList_form");
-        console.log(placeInList_form,'eh')
   
         //for todo move todo to list
         let placeInList_todo = document.querySelectorAll(".placeInList_todo") || '';
@@ -18,6 +17,8 @@
   
             option.classList.add('list-option');
             option.textContent = nameOfList;
+
+            console.log(indexOfListInSavedListsArray,'indexOfListInSavedListsArray')
             option.value = indexOfListInSavedListsArray;
   
             //add option to all the todos move selectors
