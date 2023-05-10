@@ -1,5 +1,6 @@
 export { saveTodoToSavedListsArray };
 import {encodeTodoElementIntoTodoObjectData} from './encodeTodoElementIntoTodoObjectData_view.js';
+import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
 
 /**
  * takes a todo and saves it to the index of list in
@@ -20,4 +21,11 @@ function saveTodoToSavedListsArray(todoToSave, indexOfListToSaveTo = localStorag
     savedLists[indexOfListToSaveTo][1].push(todoObjectData);
     console.log(JSON.stringify(savedLists),'json string savedlist with todo object data')
     localStorage.setItem('savedLists', JSON.stringify(savedLists));
+
+    let dataForUpdatingFireStore = {
+        listIndex: indexOfListToSaveTo,
+        todoItemData: todoObjectData,
+    };
+
+    updateUserFireStoreData('todo-item','add todo',dataForUpdatingFireStore);
 }  
