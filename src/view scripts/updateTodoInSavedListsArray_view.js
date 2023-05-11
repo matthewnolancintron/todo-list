@@ -1,4 +1,5 @@
 export { updateTodoInSavedListsArray };
+import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
 import { encodeTodoElementIntoTodoObjectData } from './encodeTodoElementIntoTodoObjectData_view.js';
 
 /**
@@ -31,4 +32,12 @@ function updateTodoInSavedListsArray(todoToSave, indexOfListToSaveTo = localStor
 
     //update local storage with the changes
     localStorage.setItem('savedLists', JSON.stringify(savedLists));
+
+    let dataForFireStore = {
+        listIndex:indexOfListToSaveTo,
+        todoIndex:indexOfTodoInSavedListsArray,
+        updatedTodo:todoObjectData
+    }
+
+    updateUserFireStoreData('todo-item','update todo',dataForFireStore);
 }  

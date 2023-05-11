@@ -30,10 +30,10 @@ async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) 
             case 'renameList':
                 const listIndex = userData.todoLists.findIndex(list => list.todoListData.uuid === data.uuid);
                 if (listIndex >= 0) {
-                  const updatedLists = [...userData.todoLists];
-                  updatedLists[listIndex].todoListData.listName = data.listName;
-                  console.log(updatedLists,'?');
-                  await updateDoc(userDocRef, { todoLists: updatedLists });
+                    const updatedLists = [...userData.todoLists];
+                    updatedLists[listIndex].todoListData.listName = data.listName;
+                    console.log(updatedLists, '?');
+                    await updateDoc(userDocRef, { todoLists: updatedLists });
                 }
                 break;
             default:
@@ -44,7 +44,24 @@ async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) 
 
     //
     if (whatToUpdate == 'todo-item') {
-        //
+        const updatedLists = [...userData.todoLists];
+        switch (howToUpdate) {
+            case 'add todo':
+                updatedLists[data.listIndex].todoItemsData.push(data.todoItemData);
+                console.log(updatedLists)
+                await updateDoc(userDocRef, { todoLists: updatedLists });
+                break;
+            case 'delete todo':
+                updatedLists[data.listIndex].todoItemsData.splice(data.todoIndex,1);
+                await updateDoc(userDocRef,{todoLists:updatedLists});
+                break;
+            case 'update todo':
+                //currently the event listner for the collapse and save
+                //todo isn't working 
+                updatedLists[data.listIndex].todoItemsData.splice(data.todoIndex,1,data.updatedTodo);
+                await updateDoc(userDocRef,{todoLists:updatedLists});
+                break;
+        }
     }
 
 }
