@@ -47,11 +47,14 @@ async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) 
         const updatedLists = [...userData.todoLists];
         switch (howToUpdate) {
             case 'add todo':
+                console.log('something?')
                 updatedLists[data.listIndex].todoItemsData.push(data.todoItemData);
-                console.log(updatedLists)
+                console.log(updatedLists,'updated?')
                 await updateDoc(userDocRef, { todoLists: updatedLists });
+                return true;
                 break;
             case 'delete todo':
+                console.log('deleted?')
                 updatedLists[data.listIndex].todoItemsData.splice(data.todoIndex,1);
                 await updateDoc(userDocRef,{todoLists:updatedLists});
                 break;

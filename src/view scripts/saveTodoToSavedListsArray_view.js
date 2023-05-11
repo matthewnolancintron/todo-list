@@ -27,5 +27,8 @@ function saveTodoToSavedListsArray(todoToSave, indexOfListToSaveTo = localStorag
         todoItemData: todoObjectData,
     };
 
-    updateUserFireStoreData('todo-item','add todo',dataForUpdatingFireStore);
+    console.log(dataForUpdatingFireStore,'data for firestore');
+
+    return updateUserFireStoreData('todo-item','add todo',dataForUpdatingFireStore);
+
 }  
