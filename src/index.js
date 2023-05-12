@@ -47,6 +47,7 @@ import {
     arrayUnion,
     getDoc,
 } from "firebase/firestore";
+import { updateUserFireStoreData } from './updateUserFireStoreData';
 
 //web app's Firebase configuration
 const firebaseConfig = {
@@ -486,11 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 
-
-
     // Define a function to set up the UI events and call functions that require userDocSnap
-    function setupUI() {
+    async function setupUI() {
         addEventToAddNewListButton();
         /**
          * set link to button in dom and add event to button
@@ -659,17 +657,14 @@ document.addEventListener('DOMContentLoaded', () => {
             /**
              * set list inView as active list
              */
-            let savedLists = JSON.parse(getItemFromLocalStorage('savedLists'));
+            let savedLists = await updateUserFireStoreData('list','retriveListData')
             savedLists.forEach((x, index) => {
                 if (index == getItemFromLocalStorage('listInViewIndex')) {
-                    console.log(document.getElementById(x[0].uuid));
-                    document.getElementById(x[0].uuid).click();
+                    console.log(document.getElementById(x['todoListData'].uuid));
+                    document.getElementById(x['todoListData'].uuid).click();
                 }
-
             });
-
         }
-
     }
 
     function setupDefaultUI() {
@@ -863,7 +858,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 export {app,auth,db}
-
-/**
- * 
- */
