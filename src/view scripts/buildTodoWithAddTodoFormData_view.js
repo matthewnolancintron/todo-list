@@ -1,11 +1,12 @@
-export{buildTodoWithAddTodoFormData};
+export { buildTodoWithAddTodoFormData };
 import { updateMoveTodoToList } from './updateMoveTodoToList_view.js';
-import {deleteTodoFromList} from './deleteTodoFromList_view.js';
-import { updateTodoInSavedListsArray } from './updateTodoInSavedListsArray_view.js';
+import { deleteTodoFromList } from './deleteTodoFromList_view.js';
+import { encodeTodoElementIntoTodoObjectData } from './encodeTodoElementIntoTodoObjectData_view.js';
+import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
 
 
 //uuid
-const {v4 : uuidv4} = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * builds a todo element based on the form data
@@ -13,8 +14,6 @@ const {v4 : uuidv4} = require('uuid');
  * and returns the todo 
  */
 function buildTodoWithAddTodoFormData(formData) {
-    console.log(formData, 'building a todo');
-
     let todoListItem = document.createElement('li');
     todoListItem.classList.add("todo-item");
 
@@ -25,7 +24,7 @@ function buildTodoWithAddTodoFormData(formData) {
      * get from dom via:
      *  document.querySelector("[data-uuid='uuid from local storages savedLists array']");
      */
-     todoListItem.dataset.uuid = uuidv4();
+    todoListItem.dataset.uuid = uuidv4();
 
     //buliding mark as complete on todo
     let todoListItemIsComplete = document.createElement('input');
@@ -64,6 +63,7 @@ function buildTodoWithAddTodoFormData(formData) {
     todoListItemExpandButton.textContent = "expand todo";
     todoListItemExpandButton.classList.add("expandTodoButton");
     todoListItemExpandButton.addEventListener('click', (e) => {
+
         //get todo item element to work on
         let todoItem = e.target.parentElement;
 
@@ -542,6 +542,7 @@ function buildTodoWithAddTodoFormData(formData) {
 
         //collapse todo
         collapseTodoButon.addEventListener('click', (e) => {
+
             //
             todoItem.classList.remove('expand-Todo');
 
@@ -561,21 +562,16 @@ function buildTodoWithAddTodoFormData(formData) {
             editableTodoDueDateContainer.replaceWith(dueDate);
             editableTodoRepeatContainer.replaceWith(newerRepeat);
 
+            updateUserFireStoreData('todo-item', 'update todo', {updatedTodo: encodeTodoElementIntoTodoObjectData(todoListItem)});
+            console.log('update todo')
             /**
              * replace collapse and save with expand
              */
             collapseTodoButon.replaceWith(expandTodoButton);
-
-            //update todo in savedLists array
-            updateTodoInSavedListsArray(todoListItem);
-
         });
-
-
     });
 
 
-    console.log(formData[5], 'repeat');
     //code for handling the repeat option text
     if (formData[6].textContent == "ON" && formData[3].value > 0) {
         //console.log('repeat on', formData[5].textContent);
