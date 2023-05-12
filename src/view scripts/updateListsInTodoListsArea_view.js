@@ -1,10 +1,10 @@
 export{updateListsInTodoListsArea}
-import {getItemFromLocalStorage} from '../data model scripts/getItemFromLocalStorage_data.js'
 import {decodeListIntoTodoListElement} from './decodeTodoListObjectIntoTodoListElement_view.js'
 import {addEventToTodoListsAddActive} from './addEventToTodoListsAddActive_view.js';
 import {updateOptionInPlaceInListFormField} from './updateOptionInPlaceInListFormField_view.js'
+import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
 
-function updateListsInTodoListsArea(){
+async function updateListsInTodoListsArea(){
     /**
      * clear default list 
      */
@@ -22,14 +22,13 @@ function updateListsInTodoListsArea(){
      * in the array and decode them and add them to the lists 
      * element or replace lists element with them
      */    
-    let savedLists = JSON.parse(getItemFromLocalStorage('savedLists'));
-    console.log('savedLists updating', savedLists);
+    let savedLists = await updateUserFireStoreData('list','retriveListData');
+
     savedLists.forEach((x,index)=>{
-        console.log(x[0],'lists object');
-        document.querySelector("#todo-lists").append(decodeListIntoTodoListElement(x[0]));
+        document.querySelector("#todo-lists").append(decodeListIntoTodoListElement(x['todoListData']));
         //also need to update the place in list form field options
         //during the update lists during each list make sure to update a list option as if adding new lists
-        updateOptionInPlaceInListFormField("addOption", x[0].listName, index);
+        updateOptionInPlaceInListFormField("addOption", x['todoListData'].listName, index);
     });
 
     //after all have been added to the dom
