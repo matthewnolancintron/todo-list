@@ -1,5 +1,8 @@
 export { decodeTodoObjectIntoTodoElement };
 import {deleteTodoFromList} from './deleteTodoFromList_view.js';
+import { updateMoveTodoToList } from './updateMoveTodoToList_view.js';
+import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
+import { encodeTodoElementIntoTodoObjectData } from './encodeTodoElementIntoTodoObjectData_view.js';
 
 function decodeTodoObjectIntoTodoElement(todoObjectData) {
     console.log(todoObjectData, 'todoObjectData : decode');
@@ -543,6 +546,8 @@ function decodeTodoObjectIntoTodoElement(todoObjectData) {
             editableTodoTitleContainer.replaceWith(newTitle);
             editableTodoDueDateContainer.replaceWith(dueDate);
             editableTodoRepeatContainer.replaceWith(newerRepeat);
+
+            updateUserFireStoreData('todo-item', 'update todo', {updatedTodo: encodeTodoElementIntoTodoObjectData(todoElement)});
 
             /**
              * replace collapse and save with expand

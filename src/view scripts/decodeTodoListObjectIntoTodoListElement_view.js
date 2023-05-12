@@ -7,7 +7,7 @@ function decodeListIntoTodoListElement(todoListObjectData) {
     todoListItem.classList.add("todo-list");
 
     //add uuid to the id of the todoListItem
-    todoListItem.id = todoListObjectData.uuid;
+    todoListItem.id = todoListObjectData.uuid;  
 
     //not sure about this functionality for now.
     //pass todo list item to function to add 
