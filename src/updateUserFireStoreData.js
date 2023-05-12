@@ -36,6 +36,9 @@ async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) 
                     await updateDoc(userDocRef, { todoLists: updatedLists });
                 }
                 break;
+            case 'retriveListData':
+                return [...userData.todoLists];
+                break;
             default:
                 break;
         }
@@ -49,24 +52,27 @@ async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) 
             case 'add todo':
                 console.log('something?')
                 updatedLists[data.listIndex].todoItemsData.push(data.todoItemData);
-                console.log(updatedLists,'updated?')
+                console.log(updatedLists, 'updated?')
                 await updateDoc(userDocRef, { todoLists: updatedLists });
                 return true;
                 break;
             case 'delete todo':
                 console.log('deleted?')
-                updatedLists[data.listIndex].todoItemsData.splice(data.todoIndex,1);
-                await updateDoc(userDocRef,{todoLists:updatedLists});
+                updatedLists[data.listIndex].todoItemsData.splice(data.todoIndex, 1);
+                await updateDoc(userDocRef, { todoLists: updatedLists });
                 break;
             case 'update todo':
-                //currently the event listner for the collapse and save
-                //todo isn't working 
-                updatedLists[data.listIndex].todoItemsData.splice(data.todoIndex,1,data.updatedTodo);
-                await updateDoc(userDocRef,{todoLists:updatedLists});
+                let indexOfTodoInSavedListsArray;
+                updatedLists[localStorage.getItem('indexOfActiveListInSavedLists')]['todoItemsData'].forEach((todo, index) => {
+                    if (todo.uuid == data.updatedTodo.uuid) {
+                        indexOfTodoInSavedListsArray = index;
+                    }
+                });
+                updatedLists[localStorage.getItem('indexOfActiveListInSavedLists')].todoItemsData.splice(indexOfTodoInSavedListsArray, 1, data.updatedTodo);
+                await updateDoc(userDocRef, { todoLists: updatedLists });
                 break;
         }
     }
-
 }
 
 export { updateUserFireStoreData }
