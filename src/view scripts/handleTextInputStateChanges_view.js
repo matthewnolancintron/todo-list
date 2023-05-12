@@ -1,16 +1,18 @@
 export { handleTextInputStateChanges };
+  import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
+import { encodeTodoListElementIntoTodoListObject } from './encodeTodoListElementIntoTodoListObject_view.js';
 import { getTodoListTitle } from './getTodoListTitle_view.js'
 import { setTodoListTitle } from './setTodoListTitle_view.js';
 import { updateOptionInPlaceInListFormField } from './updateOptionInPlaceInListFormField_view.js'
-import {updateSavedLists} from './updateSavedLists_view.js';
 
 /**
  * function takes a particular textInput
  * and put into the correct state and 
  * add the proper event listners for interaction
  */
-function handleTextInputStateChanges(textInputForTodoListItem, listElement) {
-  let savedLists = JSON.parse(localStorage.getItem('savedLists'));
+async function handleTextInputStateChanges(textInputForTodoListItem, listElement) {
+  let savedLists = await updateUserFireStoreData('list','retriveListData');
+  
   //setting state
   textInputForTodoListItem.focus();
   textInputForTodoListItem.scrollIntoView(false);
@@ -26,8 +28,8 @@ function handleTextInputStateChanges(textInputForTodoListItem, listElement) {
     //update placeInList_form field options
     updateOptionInPlaceInListFormField('addOption', name, savedLists.length);
 
-    //save newly create todo list to savedLists array in local storage
-    updateSavedLists(listElement, 'newList');
+    updateUserFireStoreData('list','newList',encodeTodoListElementIntoTodoListObject(listElement));
+
   });
 
   /**
