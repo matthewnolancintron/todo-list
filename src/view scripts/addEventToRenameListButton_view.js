@@ -3,7 +3,8 @@ import{renameList} from './renameList_view';
 import{getTodoListTitle} from './getTodoListTitle_view.js';
 import{setTodoListTitle} from './setTodoListTitle_view.js';
 import{updatePlaceInListFormFieldOnListRename} from './updatePlaceInListFormFieldOnListRename_view.js';
-import { updateSavedLists } from './updateSavedLists_view';
+import { updateUserFireStoreData } from '../updateUserFireStoreData';
+import { encodeTodoListElementIntoTodoListObject } from './encodeTodoListElementIntoTodoListObject_view';
 
 function addEventToRenameListButton(){
     //rename a list
@@ -47,13 +48,8 @@ function addEventToRenameListButton(){
          */
          updatePlaceInListFormFieldOnListRename(listInViewIndex, name);
 
-         //update information in savedLists Array
-         /**
-          
-          */
-         console.log(renamedList,'isElement?');
-         updateSavedLists(renamedList,"renameList");
-
+         //update data
+         updateUserFireStoreData('list','renameList',encodeTodoListElementIntoTodoListObject(renamedList));
        });
  
        /**

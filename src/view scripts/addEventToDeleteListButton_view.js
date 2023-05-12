@@ -1,25 +1,34 @@
 export { addEventToDeleteListButton };
-import { updateSavedLists } from './updateSavedLists_view.js';
 import { updateListInViewIndex } from './updateListInViewIndex_view.js';
+import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
+import { encodeTodoListElementIntoTodoListObject } from './encodeTodoListElementIntoTodoListObject_view.js';
+import { updateOptionInPlaceInListFormField } from './updateOptionInPlaceInListFormField_view.js';
 
-function addEventToDeleteListButton() {
+async function addEventToDeleteListButton() {
+  let savedLists = await updateUserFireStoreData('list', 'retriveListData');
+
   let deleteListButton = document.querySelector("#deleteList");
   deleteListButton.addEventListener('click', (e) => {
+
     //get listInViewIndex from unorder list holder 
     let listInViewIndex = parseInt(localStorage.getItem('listInViewIndex'));
-    console.log(listInViewIndex, 'value');
-    
 
-    let savedLists = JSON.parse(localStorage.getItem('savedLists'));
     //only delete list if there are lists to delete
     // can't delete list if there is one list
     if (savedLists.length > 1) {
       //console.log(savedLists.length, 'lists?')
       let listToDelete = document.querySelector('#todo-lists').children[listInViewIndex];
 
-      console.log(listToDelete,'delete this')
-      //remove todo list from savedLists array
-      updateSavedLists(listToDelete, 'deleteList');
+      //special case for default list
+      if (listToDelete.dataset.default) {
+        updateOptionInPlaceInListFormField('removeOption', listToDelete.textContent.trim(), listInViewIndex);
+      } else {
+        //update placeInList_form field options
+        updateOptionInPlaceInListFormField('removeOption', listToDelete.lastChild.lastChild.textContent, listInViewIndex);
+      }
+
+      //remove todo list from data
+      updateUserFireStoreData('list', 'deleteList', encodeTodoListElementIntoTodoListObject(listToDelete));
 
       //remove from display/dom
       listToDelete.remove();

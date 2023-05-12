@@ -4,7 +4,6 @@
 export { addEventToAddNewListButton };
 import { addActiveListEventToList } from './addActiveListEventToList_view.js'
 import { renameList } from './renameList_view.js';
-import { updateSavedLists } from './updateSavedLists_view.js';
 import { handleTextInputStateChanges } from './handleTextInputStateChanges_view.js';
 import { updateListInViewIndex } from './updateListInViewIndex_view.js'
 
@@ -13,29 +12,21 @@ import { updateListInViewIndex } from './updateListInViewIndex_view.js'
 const {v4 : uuidv4} = require('uuid');
 
 function addEventToAddNewListButton() {
-  console.log(document.getElementById('todo-lists'));
-
   let addNewListButton = document.querySelector("#addNewList");
-  //console.log("addNewList", addNewListButton);
+
   addNewListButton.addEventListener('click', (e) => {
     let indexOfActiveListInSavedLists = localStorage.getItem('indexOfActiveListInSavedLists');
-    console.log(indexOfActiveListInSavedLists,'activeListInSavedListsArray')
+  
+
     //get listInViewIndex from unorder list holder 
     let listInViewIndex = parseInt(localStorage.getItem('listInViewIndex'));
-    console.log(listInViewIndex, 'value');
 
     /**
       * amount to update is by the lengh of the list minus it's current index plus 1
       */
     let listOfListsLength = document.querySelector('#todo-lists').childElementCount + 1;
     updateListInViewIndex('up', (listOfListsLength - (listInViewIndex + 1)));
-    //testing values
-    // console.log(listOfListsLength, 'listOfListslength');
-    // console.log(listInViewIndex, 'listinviewindex');
-    // console.log(listInViewIndex + 1, 'listinvewindex+1');
-    // console.log(`lengthOfLists(${listOfListsLength}) - (listinViewIndex+1(${listInViewIndex + 1})) = amount(${(listOfListsLength - (listInViewIndex + 1))})`);
-    // console.log((listOfListsLength - (listInViewIndex + 1)), 'amount');
-    
+
     //
     let todoListItem = document.createElement("li");
     todoListItem.classList.add("todo-list");
@@ -64,5 +55,6 @@ function addEventToAddNewListButton() {
      */
     handleTextInputStateChanges(textInputForThisParticularTodoListItem,todoListItem);
   });
-  //
+  
+
 }
