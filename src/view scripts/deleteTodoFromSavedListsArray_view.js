@@ -1,25 +1,21 @@
 export{deleteTodoFromSavedListsArray};
 import { updateUserFireStoreData } from "../updateUserFireStoreData";
 
-function deleteTodoFromSavedListsArray(todoToDelete, indexOfListToDeleteFrom = localStorage.getItem('indexOfActiveListInSavedLists')) {  
+async function deleteTodoFromSavedListsArray(todoToDelete, indexOfListToDeleteFrom = localStorage.getItem('indexOfActiveListInSavedLists')) {  
     //delete todo from active list
     let placementOfTodoToDelete;
     
-    //
-    let savedLists = JSON.parse(localStorage.getItem('savedLists'));
+    let savedLists = await updateUserFireStoreData('list','retriveListData');
 
     //find the placement of the todo to delete in the savedLists
-    savedLists[indexOfListToDeleteFrom][1].forEach((x, index) => {
+    savedLists[indexOfListToDeleteFrom]['todoItemsData'].forEach((x, index) => {
       if (x == todoToDelete) {
         placementOfTodoToDelete = index
       }
     });
 
     //
-    savedLists[indexOfListToDeleteFrom][1].splice(placementOfTodoToDelete, 1);
-
-    //
-    localStorage.setItem('savedLists',JSON.stringify(savedLists));
+    savedLists[indexOfListToDeleteFrom]['todoItemsData'].splice(placementOfTodoToDelete, 1);
 
     let dataForFireStore = {
       listIndex:indexOfListToDeleteFrom,
