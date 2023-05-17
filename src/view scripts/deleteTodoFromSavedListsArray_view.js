@@ -7,12 +7,16 @@ async function deleteTodoFromSavedListsArray(todoToDelete, indexOfListToDeleteFr
     
     let savedLists = await updateUserFireStoreData('list','retriveListData');
 
+    console.log(todoToDelete.dataset.uuid,'todoToDelete')
     //find the placement of the todo to delete in the savedLists
     savedLists[indexOfListToDeleteFrom]['todoItemsData'].forEach((x, index) => {
-      if (x == todoToDelete) {
-        placementOfTodoToDelete = index
+      console.log(x,'x');
+      if (x.uuid == todoToDelete.dataset.uuid) {
+        placementOfTodoToDelete = index;
       }
     });
+
+    console.log(placementOfTodoToDelete,'placementOfTodoToDelete')
 
     //
     savedLists[indexOfListToDeleteFrom]['todoItemsData'].splice(placementOfTodoToDelete, 1);
