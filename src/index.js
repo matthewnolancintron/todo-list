@@ -1,8 +1,6 @@
 import './styles.css'
 
 //view: modules
-import { updateTodosInTodoArea } from './view scripts/updateTodoInTodoArea_view.js';
-import { addActiveListEventToList } from './view scripts/addActiveListEventToList_view.js';
 import { addEventToAddNewListButton } from './view scripts/addEventToAddNewListButton_view.js';
 import { addEventToRenameListButton } from './view scripts/addEventToRenameListButton_view.js';
 import { addEventToDeleteListButton } from './view scripts/addEventToDeleteListButton_view.js';
@@ -26,12 +24,17 @@ import { initializeApp } from "firebase/app";
 // Initialize Firebase Authentication and get a reference to the service
 import {
     getAuth,
+    setPersistence,
+    browserSessionPersistence,
+    signInAnonymously,
     sendSignInLinkToEmail,
     signInWithEmailLink,
     isSignInWithEmailLink,
     signOut,
     connectAuthEmulator,
     updateProfile,
+    linkWithCredential,
+    EmailAuthProvider,
 } from 'firebase/auth'
 
 import {
@@ -40,6 +43,8 @@ import {
     collection,
     doc,
     setDoc,
+    addDoc,
+    deleteDoc,
     getDocs,
     updateDoc,
     where,
@@ -71,132 +76,188 @@ connectFirestoreEmulator(db, 'localhost', 8080);
 
 const { v4: uuidv4 } = require('uuid');
 
+let previousSessionId = localStorage.getItem('previousSessionId');
+
 //when dom has loaded do stuff.
 document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged(async function (user) {
         const signInButtonContainer = document.getElementById("sign-in-buttons");
         const signOutButtonContainer = document.getElementById("sign-out-button-section")
         if (user) {// User is signed in.
+
             const { displayName, email, uid } = user;
-            /**
-             * checking if user document with user data is already in
-             * users collection if not creating a new document and 
-             * creating userData then adding it to the user collection.
-             */
-            try {
-                const querySnapshot = await getDocs(collection(db, "users"));
-                let isUserDataInUsersCollection;
 
-                querySnapshot.forEach((doc) => {
-                    if (doc.id === uid) {
-                        isUserDataInUsersCollection = true;
+            // user temporarly signed in as anonymous
+            if (user.isAnonymous) {
+                //create and addEventListner to sign in / sign up button
+                let signInButton = document.getElementById('signInSignUpButton');
+
+                signInButton.addEventListener("click", () => { openPopup("signUpSignIn") });
+                signInButtonContainer.appendChild(signInButton);
+
+                //hide userInfoContainer
+                handleUserInfoDisplay('hide');
+
+                // Display sign-in/sign-up button.
+                signInButtonContainer.classList.remove('hide');
+                signInButtonContainer.classList.add('show');
+
+                if (previousSessionId && previousSessionId !== uid || previousSessionId === null) {
+                    // User has changed
+                    // Perform actions specific to user change
+                    console.log('User has changed or a new anonymous user with no previous anonymous user');
+                    console.log(uid, 'current user uid');
+
+                    try {
+                        //set user name and handles anoymous data in firestore
+                        await handleSetUserName();
+
+                        // Create a new document with an auto-generated ID in the users collection
+                        const newUserRef = doc(db, 'users', uid);
+
+                        try {
+                            //run this successfully before moving on to the rest of the try block
+                            //and if un-successfull run the catch block
+                            await setDoc(newUserRef, {
+                                displayName: displayName,
+                                todoLists: [],
+                            });
+
+                            // current issuse: the document is not showing up in firestore though?
+                            console.log('document has been set for anonymous user');
+                            console.log('newUserRef', newUserRef)
+                            console.log('uid for new user', uid);
+                            setupUI();
+                        } catch (error) {
+                            console.log('error setting doc', error);
+                        }
+                    } catch (error) {
+                        console.log('error in handleSetUserName', error);
                     }
-                });
+                } else {
+                    setupUI();
+                }
+            } else {
+                // signed in as " permanent account"
+                /**
+                 * checking if user document with user data is already in
+                 * users collection if not creating a new document and 
+                 * creating userData then adding it to the user collection.
+                 */
+                try {
+                    const querySnapshot = await getDocs(collection(db, "users"));
+                    let isUserDataInUsersCollection;
 
-                //if user is not in users collection
-                if (!isUserDataInUsersCollection) {
-                    /**
-                     * create user data and add it to a new document
-                     * add that document to the users collection
-                     */
+                    querySnapshot.forEach((doc) => {
+                        if (doc.id === uid) {
+                            isUserDataInUsersCollection = true;
+                        }
+                    });
 
-                    // reference to users collection in firestore database
-                    const usersCollectionRef = collection(db, 'users');
+                    //if user is not in users collection
+                    if (!isUserDataInUsersCollection) {
+                        /**
+                         * create user data and add it to a new document
+                         * add that document to the users collection
+                         */
 
-                    //create usersData object
-                    const userData = {
-                        displayName: user.displayName,
-                        email: user.email,
-                        todoLists: []
+                        // reference to users collection in firestore database
+                        const usersCollectionRef = collection(db, 'users');
+
+                        //create usersData object
+                        const userData = {
+                            displayName: user.displayName,
+                            email: user.email,
+                            todoLists: []
+                        }
+
+                        //create new document in usersCollection 
+                        // that has document id set to the users uid from auth
+                        const userDocumentRef = doc(usersCollectionRef, uid);
+
+                        //set usersData to the newly added user document
+                        await setDoc(userDocumentRef, userData);
                     }
 
-                    //create new document in usersCollection 
-                    // that has document id set to the users uid from auth
-                    const userDocumentRef = doc(usersCollectionRef, uid);
-
-                    //set usersData to the newly added user document
-                    await setDoc(userDocumentRef, userData);
+                } catch (e) {
+                    console.log(e);
                 }
 
-            } catch (e) {
-                console.log(e);
-            }
+                //if display name is null prompt user to set display name
+                if (!user.displayName) {
+                    openPopup('setUserName');
+                } else {
+                    handleUserInfoDisplay('show');
+                }
 
-            //if display name is null prompt user to set display name
-            if (!user.displayName) {
-                openPopup('setUserName');
-            } else {
-                handleUserInfoDisplay('show');
-            }
+                //hide sign-in/sign-up buttons
+                signInButtonContainer.classList.remove('show');
+                signInButtonContainer.classList.add('hide');
 
-            //hide sign-in/sign-up buttons
-            signInButtonContainer.classList.remove('show');
-            signInButtonContainer.classList.add('hide');
+                //create and addEventListner to sign out button
+                let signOutButton = document.createElement('button');
+                signOutButton.innerText = 'Sign out';
 
-            //create and addEventListner to sign out button
-            let signOutButton = document.createElement('button');
-            signOutButton.innerText = 'Sign out';
-            signOutButton.addEventListener('click', () => {
-                signOut(auth).then(() => {
-                    // Sign-out successful.
-                    //remove signout button from display:
-                    signOutButtonContainer.classList.remove('show');
-                    signOutButtonContainer.classList.add('hide');
-                }).catch((error) => {
-                    // An error happened.
+                //seems to be an issue when signing out.
+                signOutButton.addEventListener('click', () => {
+                    signOut(auth).then(() => {
+                        // Sign-out successful.
+                        //remove signout button from display:
+                        signOutButtonContainer.classList.remove('show');
+                        signOutButtonContainer.classList.add('hide');
+                    }).catch((error) => {
+                        // An error happened.
+                        console.log(error);
+                    });
                 });
-            });
 
-            signOutButtonContainer.appendChild(signOutButton);
+                signOutButtonContainer.appendChild(signOutButton);
 
-            //display the signOutButton Container
-            signOutButtonContainer.classList.remove('hide');
-            signOutButtonContainer.classList.add('show');
+                //display the signOutButton Container
+                signOutButtonContainer.classList.remove('hide');
+                signOutButtonContainer.classList.add('show');
 
-            // Get a reference to the current user's document in the 'users' collection
-            const userDocRef = doc(collection(db, 'users'), uid);
+                // Get a reference to the current user's document in the 'users' collection
+                const userDocRef = doc(collection(db, 'users'), uid);
 
-            const userDocSnap = await getDoc(userDocRef);
+                const userDocSnap = await getDoc(userDocRef);
 
-            const userData = userDocSnap.data();
+                const userData = userDocSnap.data();
 
-            //if the todoLists data is empty
-            if (userData.todoLists.length == 0) {
-                // Create the default list object
-                const defaultList = document.getElementsByClassName("todo-list")[0];
-                defaultList.id = uuidv4();
-                const defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
+                console.log('user data', userData);
 
-                // Add the default list object to the user's todo data
-                await updateDoc(userDocRef, {
-                    todoLists: arrayUnion({
-                        todoListData: defaultListObject,
-                        todoItemsData: [],
-                    }),
-                });
+                //if the todoLists data is empty
+                if (userData.todoLists.length == 0) {
+                    // Create the default list object
+                    const defaultList = document.getElementsByClassName("todo-list")[0];
+                    defaultList.id = uuidv4();
+                    const defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
+
+                    // Add the default list object to the user's todo data
+                    await updateDoc(userDocRef, {
+                        todoLists: arrayUnion({
+                            todoListData: defaultListObject,
+                            todoItemsData: [],
+                        }),
+                    });
+                }
+
+                setupUI();
+
+                console.log('end of non anonymous users auth state change event');
             }
-
-            // Call the function to set up the UI events and functions that require userDocSnap
-            setupUI();
-
         } else {// No user is signed in.
-            //create and addEventListner to sign in / sign up button
-            let signInButton = document.getElementById('signInSignUpButton');
 
-            signInButton.addEventListener("click", () => { openPopup("signUpSignIn") });
-            signInButtonContainer.appendChild(signInButton);
-
-
-            //hide userInfoContainer
-            handleUserInfoDisplay('hide');
-
-            // Display sign-in/sign-up button.
-            signInButtonContainer.classList.remove('hide');
-            signInButtonContainer.classList.add('show');
-
-
-            // Call the function to set up the default UI configuration
-            setupDefaultUI();
+            /**
+             * sign in the user anonymously
+             */
+            signInAnonymously(auth).catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // ...
+                console.log('errorCode', errorCode);
+                console.log('errorMessage', errorMessage);
+            });
         }
     });
 
@@ -298,21 +359,79 @@ document.addEventListener('DOMContentLoaded', () => {
                             // attacks, ask the user to provide the associated email again. For example:
                             email = window.prompt('Please provide your email for confirmation');
                         }
+
                         // The client SDK will parse the code from the link for you.
                         signInWithEmailLink(auth, email, window.location.href)
-                            .then((result) => {
+                            .then(async (userCredential) => {
                                 // Clear email from storage.
                                 window.localStorage.removeItem('emailForSignIn');
-                                // You can access the new user via result.user
-                                // Additional user info profile not available via:
-                                // result.additionalUserInfo.profile == null
-                                // You can check if the user is new or existing:
-                                // result.additionalUserInfo.isNewUser
+                                // Get the authenticated user
+                                const user = userCredential.user;
+
+                                // Check if the user exists
+                                if (user && !user.isAnonymous) {
+                                    // User already exists, ask for merge or discard
+                                    const mergeData = confirm("Do you want to merge your existing account with the anonymous account?");
+
+                                    if (mergeData) {
+                                        // Merge the anonymous account with the existing account
+                                        // Generate the email credential
+                                        const credential = EmailAuthProvider.credential(email, window.location.href);
+
+                                        /**
+                                         * todo:
+                                         * need to manually
+                                         * retrieve the necessary
+                                         * data from the anonymous account
+                                         * and update the corresponding documents
+                                         * in Firestore to ensure that the data
+                                         * from the anonymous account is merged
+                                         * correctly with the existing account's data.
+                                         */
+
+                                        // Retrieve anonymous user's data from Firestore and merge with existing user's data
+                                        const anonymousUserId = localStorage.getItem("previousSessionId");
+                                        const anonymousUserDocRef = doc(collection(db, 'users'), anonymousUserId);
+
+                                        let dataForMerge = {
+                                            anonymousUserDocRef: anonymousUserDocRef,
+                                        };
+
+                                        try {
+                                            await updateUserFireStoreData('account', 'merge', dataForMerge);
+                                            setupUI();
+                                            //could move setupui to it's own file and call from within the function above
+                                            // would just have to import into index.js as well.
+                                        } catch (error) {
+
+                                        }
+                                    } else {
+                                        // Discard the anonymous account and sign in with the existing account
+                                        console.log("Anonymous account discarded. Signing in with the existing account...");
+                                        setupUI();
+
+                                    }
+                                } else {
+                                    console.log("User is a new user, upgrade the anonymous account to a permanent account");
+
+                                    // Step 3: Convert the anonymous account to a permanent account
+                                    // Generate the email credential
+                                    const credential = EmailAuthProvider.credential(email, window.location.href);
+
+                                    // Link the email credential with the current user
+                                    linkWithCredential(user, credential)
+                                        .then(() => {
+                                            console.log("Anonymous account successfully upgraded to a permanent account");
+                                            setupUI();
+                                        })
+                                        .catch((error) => {
+                                            console.log("Error upgrading anonymous account:", error);
+                                        });
+
+                                }
                             })
                             .catch((error) => {
-                                // Some error occurred, you can inspect the code: error.code
-                                // Common errors could be invalid email and invalid or expired OTPs.
-                                console.log('sign in failed')
+                                console.log("Error signing in with email link:", error);
                             });
                     }
                 })
@@ -336,6 +455,8 @@ document.addEventListener('DOMContentLoaded', () => {
             userInfoContainer.classList.remove("hide");
             userInfoContainer.classList.add("show");
 
+            console.log(auth.currentUser)
+
             //set content for userInfo
             userInfoContainer.innerHTML = auth.currentUser.displayName;
         }
@@ -347,87 +468,125 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function handleSetUserName(event) {
-        event.preventDefault();
-        event.stopPropagation();
+        if (event !== undefined) {
+            event.preventDefault();
+            event.stopPropagation();
 
-        if (event.target.id === `setDisplayName`) {
-            //set content for userInfo
-            // userInfoContainer.innerHTML = user.displayName;
-            const userName = document.querySelector('#userName').value;
-            const errorMessage = document.getElementById("error-message_setUserName");
-            try {
-                const isUserNameValid = await validateUserName(userName);
-                console.log('isUserNameValid', isUserNameValid);
-                if (isUserNameValid.valid) {
-                    //hide the error message jsut incase its showing
-                    errorMessage.classList.remove("show");
-                    errorMessage.classList.add("hide");
-                    // Update the user's display name
-                    updateProfile(auth.currentUser, {
-                        displayName: userName
-                    }).then(async function () {
-                        // Display name updated successfully
-                        //update user data in firestore
-                        const userRef = doc(db, "users", auth.currentUser.uid);
-
-                        await updateDoc(userRef, {
+            if (event.target.id === `setDisplayName`) {
+                //set content for userInfo
+                // userInfoContainer.innerHTML = user.displayName;
+                const userName = document.querySelector('#userName').value;
+                const errorMessage = document.getElementById("error-message_setUserName");
+                try {
+                    const isUserNameValid = await validateUserName(userName);
+                    console.log('isUserNameValid', isUserNameValid);
+                    if (isUserNameValid.valid) {
+                        //hide the error message jsut incase its showing
+                        errorMessage.classList.remove("show");
+                        errorMessage.classList.add("hide");
+                        // Update the user's display name
+                        updateProfile(auth.currentUser, {
                             displayName: userName
+                        }).then(async function () {
+                            // Display name updated successfully
+                            //update user data in firestore
+                            const userRef = doc(db, "users", auth.currentUser.uid);
+
+                            // console.log(auth.currentUser.uid,'current uid');
+
+                            await updateDoc(userRef, {
+                                displayName: userName
+                            });
+
+                            /**close the pop ups */
+                            closePopUp("setUserName");
+                            closePopUp("signUpSignIn");
+
+                            // Display user info and options.
+                            handleUserInfoDisplay('show');
+
+                            //hide set username button if needed
+                            const setUserNameButtonSection = document.getElementById("setUser-button-section");
+
+                            if (setUserNameButtonSection.classList.contains('show')) {
+                                setUserNameButtonSection.classList.remove('show');
+                                setUserNameButtonSection.classList.add('hide');
+                            }
+
+                        }).catch((error) => {
+                            // Error updating display name
+                            console.log(error, 'updateProfile Error');
                         });
 
-                        /**close the pop ups */
-                        closePopUp("setUserName");
-                        closePopUp("signUpSignIn");
 
-                        // Display user info and options.
-                        handleUserInfoDisplay('show');
+                    } else {
+                        //username is not valid show error to user
+                        //show the error message
+                        errorMessage.classList.add("show");
+                        errorMessage.classList.remove("hide");
 
-                        //hide set username button if needed
-                        const setUserNameButtonSection = document.getElementById("setUser-button-section");
-
-                        if (setUserNameButtonSection.classList.contains('show')) {
-                            setUserNameButtonSection.classList.remove('show');
-                            setUserNameButtonSection.classList.add('hide');
-                        }
-
-                    }).catch((error) => {
-                        // Error updating display name
-                        console.log(error, 'updateProfile Error');
-                    });
-
-
-                } else {
-                    //username is not valid show error to user
-                    //show the error message
-                    errorMessage.classList.add("show");
-                    errorMessage.classList.remove("hide");
-
-                    //set the error message.
-                    errorMessage.innerHTML = isUserNameValid.error;
+                        //set the error message.
+                        errorMessage.innerHTML = isUserNameValid.error;
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
-            } catch (error) {
-                console.error(error);
+            }
+
+            if (event.target.id === `remindMeLater`) {
+                // instead of setting a username 
+                //show a button that opens the pop up for setting username
+                // with a message right next to it.
+                const setUserNameButtonSection = document.getElementById("setUser-button-section");
+                let setUserNameButton = document.getElementById("setUserNameButton");
+
+                setUserNameButton.innerText = 'setUserName';
+                setUserNameButton.addEventListener('click', () => {
+                    openPopup('setUserName');
+                });
+
+                setUserNameButtonSection.appendChild(setUserNameButton);
+
+                //display the signOutButton Container
+                setUserNameButtonSection.classList.remove('hide');
+                setUserNameButtonSection.classList.add('show');
+
+                closePopUp('setUserName');
             }
         }
 
-        if (event.target.id === `remindMeLater`) {
-            // instead of setting a username 
-            //show a button that opens the pop up for setting username
-            // with a message right next to it.
-            const setUserNameButtonSection = document.getElementById("setUser-button-section");
-            let setUserNameButton = document.getElementById("setUserNameButton");
+        //anonymous user 
+        if (event === undefined) {
+            // Set the display name for the current anonymous user
+            const userName = 'anonymous';
 
-            setUserNameButton.innerText = 'setUserName';
-            setUserNameButton.addEventListener('click', () => {
-                openPopup('setUserName');
-            });
+            //update some of the ui
+            // userInfoContainer.innerHTML = userName;
 
-            setUserNameButtonSection.appendChild(setUserNameButton);
+            // Update the user's display name in Firebase Authentication
+            updateProfile(auth.currentUser, {
+                displayName: userName
+            })
+                .then(async function () {
+                    // Display name updated successfully
+                    // Retrieve the previous session ID from storage
+                    const previousSessionId = localStorage.getItem('previousSessionId');
 
-            //display the signOutButton Container
-            setUserNameButtonSection.classList.remove('hide');
-            setUserNameButtonSection.classList.add('show');
+                    if (previousSessionId !== null) {
+                        // Remove the previous anonymous user data before creating a new one
+                        await removePreviousAnonymousUserData();
+                    }
 
-            closePopUp('setUserName');
+                    // Update the stored session ID with the current session
+                    localStorage.setItem('previousSessionId', auth.currentUser.uid);
+
+                    // Display user info and options
+                    handleUserInfoDisplay('show');
+                })
+                .catch((error) => {
+                    // Error updating display name
+                    console.log(error, 'updateProfile Error');
+                });
         }
 
         return false;
@@ -484,6 +643,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // handle error
             console.error(error);
             return { valid: false, error: 'An error occurred while validating the username' };
+        }
+    }
+
+    // Remove the previous anonymous user data from Firestore
+    async function removePreviousAnonymousUserData() {
+        // Retrieve the previous session ID from storage
+        const previousSessionId = localStorage.getItem('previousSessionId');
+
+        // Get a reference to the previous anonymous user document
+        const previousUserRef = doc(db, 'users', previousSessionId);
+
+        try {
+            // Delete the document
+            await deleteDoc(previousUserRef);
+            console.log('Previous anonymous user data successfully removed from Firestore.');
+        } catch (error) {
+            console.log('Error removing previous anonymous user data:', error);
         }
     }
 
@@ -563,13 +739,8 @@ document.addEventListener('DOMContentLoaded', () => {
          */
         if (
             localStorage.getItem('indexOfActiveListInSavedLists') == null ||
-            localStorage.getItem('listInViewIndex') == null ||
-            localStorage.getItem('savedLists') == null
-        ) {
+            localStorage.getItem('listInViewIndex') == null) {
             console.log('empty localstorage need to intialize values');
-
-            console.log(db, 'db');
-
             /**
             * store listInViewIndex in global storage
             */
@@ -587,19 +758,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             //add unnique id to the default list
             let defaultList = document.getElementsByClassName("todo-list")[0];
+
+            //
             defaultList.id = uuidv4();
+
+            //
+            let defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
+
+            //add list to userFireStore data
+            updateUserFireStoreData('list', 'newList', defaultListObject);
 
             /**
              * set defaultLists uuid into local storage
              * need to used when refreshing application on subsquent uses
              */
-            //encode default list before saving it to savedLists
             setItemAndValueInLocalStorage('defaultListsUuid', defaultList.id);
-            let defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
-
-            //array of list elements and the todo that belong to them.
-            setItemAndValueInLocalStorage('savedLists', JSON.stringify([[defaultListObject, []],]));
-
         } else {
             console.log('values already in local storage use values to update application');
             /**
@@ -607,35 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
              */
             let a = localStorage.getItem('indexOfActiveListInSavedLists');
             let b = localStorage.getItem('listInViewIndex');
-            let c = localStorage.getItem('savedLists');
-
-            console.log(a, 'indexOfActiveListInSavedLists');
-            console.log(b, 'listInViewIndex');
-            console.log(c, 'savedLists');
-
-            /**
-             * all lists are missing need to adjust how I store the lists into local storage
-             * copy the aproch I took with saving the todo's into local storage
-             * 
-             * decode encode helper functions 
-             * encode new lists as they are created and saved into local stoarge so that
-             * rather than just saving a uuid save and object that represent the list
-             * it will be a list object data
-             * might need to update rename and delete list or how they interface with local storage after this update
-             * 
-             * for decode take the objects and turn them into elements that will go back on to the dom
-             * the decode only takes places when user refreshes the application after already having used for the first time
-             * so subsequent uses
-             * decode will happen in a yet to be implamented module for updating todo lists that get's the starting todo lists
-             * and updates it with whats in the savedLists array from local storage take all the object data and turn to dom nodes
-             * then update the dom correctly
-             * 
-             * not sure just yet about the listinview index or activelistindex
-             * I'll see after finishing the above
-             * 
-             * after that just look through viewscripts for any local storage operaction and let data modules do that instead 
-             * create new modules if needed and just import function into the view script that requires it.
-             */
 
             /**
              * set default list's id to the id create on first time use
@@ -645,19 +789,13 @@ document.addEventListener('DOMContentLoaded', () => {
             //set id to uuid from local storage.
             defaultList.id = getItemFromLocalStorage('defaultListsUuid');
 
-            /**
-             * need to update lists before todos
-             * but before even that need to change how the lists are saved
-             * for now create the updateListsInTodoListsArea and call it but
-             * it won't do much for now
-             */
             updateListsInTodoListsArea();
 
             //update todo in todo area
             /**
              * set list inView as active list
              */
-            let savedLists = await updateUserFireStoreData('list','retriveListData')
+            let savedLists = await updateUserFireStoreData('list', 'retriveListData')
             savedLists.forEach((x, index) => {
                 if (index == getItemFromLocalStorage('listInViewIndex')) {
                     console.log(document.getElementById(x['todoListData'].uuid));
@@ -667,194 +805,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function setupDefaultUI() {
-        console.log('defaultUI');
-
-        addEventToAddNewListButton();
-
-        /**
-         * rename:
-         * set link to button in dom and add event to button
-         */
-        addEventToRenameListButton();
-        //update listInView parameter for the above function
-
-        //delete a list
-        addEventToDeleteListButton();
-        //update listInView parameter for the above function
-
-        /**
-         * set active list functinality on page start
-         */
-        addEventToTodoListsAddActive();
-        //update listInView parameter for the above function
-
-        // <!-- add functionality to arrow buttons on the todo lists area -->
-        addEventToLeftTodoListButton();
-        //update listInView parameter for the above function
-
-        //
-        addEventToRightTodoListButton();
-        //update listInView parameter for the above function
-
-
-        /**end of list functionality code */
-
-        //repeatOptions on add todo form stuff.
-        let repeat_options = document.getElementById('repeat_options');
-        let dayOfTheWeekSelector = document.querySelector('.dayOfTheWeekSelector');
-
-        //
-        addEventToRepeatOptions(repeat_options, dayOfTheWeekSelector);
-
-        /*add todo form when user presses add todo button*/
-        let addTodoButton = document.querySelector('.add_Todo');
-        let addTodoForm = document.querySelector('.addTodoForm_inactive');
-
-        let numRepeatElement = document.getElementById('times');
-        numRepeatElement.value = "";
-
-        addEventToAddTodoButton(addTodoButton, addTodoForm, numRepeatElement);
-
-        switch (document.getElementsByClassName("toggle_repeat_OFF")[0].textContent) {
-            case "OFF":
-                numRepeatElement.disabled = true;
-                repeat_options.disabled = true;
-                break;
-            default:
-                break;
-        }
-
-        /** start of todos functionality */
-        /**confirm and cancel todo events */
-        let confirmOrCancelTodoButtons = document.querySelectorAll(".confirmOrCancel_Todo");
-
-        //
-        addEventToCancelTodoButton(confirmOrCancelTodoButtons, addTodoForm, dayOfTheWeekSelector, addTodoButton);
-
-        //
-        addEventToConfirmTodoButton(confirmOrCancelTodoButtons, addTodoForm, dayOfTheWeekSelector);
-
-        /**
-         * check local storage:
-         * check if the following items are in local storage
-         * indexOfActiveListInSavedLists, listInViewIndex,
-         * savedLists
-         * 
-         * if they already exist don't set them
-         * if not then intialize them 
-         */
-
-
-
-        if (
-            localStorage.getItem('indexOfActiveListInSavedLists') == null ||
-            localStorage.getItem('listInViewIndex') == null ||
-            localStorage.getItem('savedLists') == null
-        ) {
-            console.log('empty localstorage need to intialize values');
-
-            console.log(db, 'db');
-
-            /**
-            * store listInViewIndex in global storage
-            */
-            setItemAndValueInLocalStorage('listInViewIndex', 0);
-
-            /**
-             * index of the active lists starts as the first list
-             * will update via add active list func
-             */
-            setItemAndValueInLocalStorage('indexOfActiveListInSavedLists', 0);
-
-            /**
-             * intialize default appliation state:
-             */
-
-            //add unnique id to the default list
-            let defaultList = document.getElementsByClassName("todo-list")[0];
-            defaultList.id = uuidv4();
-
-            /**
-             * set defaultLists uuid into local storage
-             * need to used when refreshing application on subsquent uses
-             */
-            //encode default list before saving it to savedLists
-            setItemAndValueInLocalStorage('defaultListsUuid', defaultList.id);
-            let defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
-
-            //array of list elements and the todo that belong to them.
-            setItemAndValueInLocalStorage('savedLists', JSON.stringify([[defaultListObject, []],]));
-
-        } else {
-            console.log('values already in local storage use values to update application');
-            /**
-             * intialize application state based on localstorage values
-             */
-            let a = localStorage.getItem('indexOfActiveListInSavedLists');
-            let b = localStorage.getItem('listInViewIndex');
-            let c = localStorage.getItem('savedLists');
-
-            console.log(a, 'indexOfActiveListInSavedLists');
-            console.log(b, 'listInViewIndex');
-            console.log(c, 'savedLists');
-
-            /**
-             * all lists are missing need to adjust how I store the lists into local storage
-             * copy the aproch I took with saving the todo's into local storage
-             * 
-             * decode encode helper functions 
-             * encode new lists as they are created and saved into local stoarge so that
-             * rather than just saving a uuid save and object that represent the list
-             * it will be a list object data
-             * might need to update rename and delete list or how they interface with local storage after this update
-             * 
-             * for decode take the objects and turn them into elements that will go back on to the dom
-             * the decode only takes places when user refreshes the application after already having used for the first time
-             * so subsequent uses
-             * decode will happen in a yet to be implamented module for updating todo lists that get's the starting todo lists
-             * and updates it with whats in the savedLists array from local storage take all the object data and turn to dom nodes
-             * then update the dom correctly
-             * 
-             * not sure just yet about the listinview index or activelistindex
-             * I'll see after finishing the above
-             * 
-             * after that just look through viewscripts for any local storage operaction and let data modules do that instead 
-             * create new modules if needed and just import function into the view script that requires it.
-             */
-
-            /**
-             * set default list's id to the id create on first time use
-             */
-            let defaultList = document.getElementsByClassName("todo-list")[0];
-
-            //set id to uuid from local storage.
-            defaultList.id = getItemFromLocalStorage('defaultListsUuid');
-
-            /**
-             * need to update lists before todos
-             * but before even that need to change how the lists are saved
-             * for now create the updateListsInTodoListsArea and call it but
-             * it won't do much for now
-             */
-            updateListsInTodoListsArea();
-
-            //update todo in todo area
-            /**
-             * set list inView as active list
-             */
-            let savedLists = JSON.parse(getItemFromLocalStorage('savedLists'));
-            savedLists.forEach((x, index) => {
-                if (index == getItemFromLocalStorage('listInViewIndex')) {
-                    console.log(document.getElementById(x[0].uuid));
-                    document.getElementById(x[0].uuid).click();
-                }
-
-            });
-
-        }
-
-    }
 });
 
-export {app,auth,db}
+export { app, auth, db }
