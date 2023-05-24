@@ -1,5 +1,6 @@
 import { app, auth, db } from './index.js';
 import { doc, getDoc, updateDoc, collection, arrayUnion, arrayRemove, setDoc } from "firebase/firestore";
+import { setupUI } from './view scripts/setupUI_view.js';
 
 // mode is to get or set data from user's firestore data
 async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) {
@@ -111,10 +112,9 @@ async function updateUserFireStoreData(whatToUpdate, howToUpdate, data = false) 
                         // Handle any errors
                         console.log('error', error);
                     }).finally(()=>{
-                        console.log('refresh')
-                         // Refresh the page
-                         location.reload();
-
+                        // Refresh the page
+                        //  location.reload();
+                        setupUI();
                     });
                 break;
         }

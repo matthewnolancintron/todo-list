@@ -13,6 +13,7 @@ import { addEventToCancelTodoButton } from './view scripts/addEventToCancelTodoB
 import { addEventToConfirmTodoButton } from './view scripts/addEventToConfirmTodoButton_view.js';
 import { updateListsInTodoListsArea } from './view scripts/updateListsInTodoListsArea_view.js';
 import { encodeTodoListElementIntoTodoListObject } from './view scripts/encodeTodoListElementIntoTodoListObject_view';
+import { setupUI } from './view scripts/setupUI_view';
 
 //data:modules (not sure about these modules they are kind of redundant)
 import { setItemAndValueInLocalStorage } from './data model scripts/setItemAndValueInLocalStorage_data.js';
@@ -74,8 +75,6 @@ connectAuthEmulator(auth, "http://localhost:9099");
 const db = getFirestore(app);
 connectFirestoreEmulator(db, 'localhost', 8080);
 
-const { v4: uuidv4 } = require('uuid');
-
 let previousSessionId = localStorage.getItem('previousSessionId');
 
 //when dom has loaded do stuff.
@@ -134,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } catch (error) {
                         console.log('error in handleSetUserName', error);
                     }
-                } else {
+                } else {    console.log('setupUI has been called');
                     setupUI();
                 }
             } else {
@@ -427,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                         .catch((error) => {
                                             console.log("Error upgrading anonymous account:", error);
                                         });
-
                                 }
                             })
                             .catch((error) => {
@@ -662,149 +660,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Error removing previous anonymous user data:', error);
         }
     }
-
-    // Define a function to set up the UI events and call functions that require userDocSnap
-    async function setupUI() {
-        addEventToAddNewListButton();
-        /**
-         * set link to button in dom and add event to button
-         */
-        addEventToRenameListButton();
-        //update listInView parameter for the above function
-
-        //delete a list
-        addEventToDeleteListButton();
-        //update listInView parameter for the above function
-
-        /**
-         * set active list functinality on page start
-         */
-        addEventToTodoListsAddActive();
-        //update listInView parameter for the above function
-
-        // <!-- add functionality to arrow buttons on the todo lists area -->
-        addEventToLeftTodoListButton();
-        //update listInView parameter for the above function
-
-        //
-        addEventToRightTodoListButton();
-        //update listInView parameter for the above function
-
-
-        /**end of list functionality code */
-
-        //repeatOptions on add todo form stuff.
-        let repeat_options = document.getElementById('repeat_options');
-        let dayOfTheWeekSelector = document.querySelector('.dayOfTheWeekSelector');
-
-        //
-        addEventToRepeatOptions(repeat_options, dayOfTheWeekSelector);
-
-        /*add todo form when user presses add todo button*/
-        let addTodoButton = document.querySelector('.add_Todo');
-        let addTodoForm = document.querySelector('.addTodoForm_inactive');
-
-        let numRepeatElement = document.getElementById('times');
-        numRepeatElement.value = "";
-
-        addEventToAddTodoButton(addTodoButton, addTodoForm, numRepeatElement);
-
-        switch (document.getElementsByClassName("toggle_repeat_OFF")[0].textContent) {
-            case "OFF":
-                numRepeatElement.disabled = true;
-                repeat_options.disabled = true;
-                break;
-            default:
-                break;
-        }
-
-        /** start of todos functionality */
-        /**confirm and cancel todo events */
-        let confirmOrCancelTodoButtons = document.querySelectorAll(".confirmOrCancel_Todo");
-
-        //
-        addEventToCancelTodoButton(confirmOrCancelTodoButtons, addTodoForm, dayOfTheWeekSelector, addTodoButton);
-
-        //
-        addEventToConfirmTodoButton(confirmOrCancelTodoButtons, addTodoForm, dayOfTheWeekSelector);
-
-        /**
-         * check local storage:
-         * check if the following items are in local storage
-         * indexOfActiveListInSavedLists, listInViewIndex,
-         * savedLists
-         * 
-         * if they already exist don't set them
-         * if not then intialize them 
-         */
-        if (
-            localStorage.getItem('indexOfActiveListInSavedLists') == null ||
-            localStorage.getItem('listInViewIndex') == null) {
-            console.log('empty localstorage need to intialize values');
-            /**
-            * store listInViewIndex in global storage
-            */
-            setItemAndValueInLocalStorage('listInViewIndex', 0);
-
-            /**
-             * index of the active lists starts as the first list
-             * will update via add active list func
-             */
-            setItemAndValueInLocalStorage('indexOfActiveListInSavedLists', 0);
-
-            /**
-             * intialize default appliation state:
-             */
-
-            //add unnique id to the default list
-            let defaultList = document.getElementsByClassName("todo-list")[0];
-
-            //
-            defaultList.id = uuidv4();
-
-            //
-            let defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
-
-            //add list to userFireStore data
-            updateUserFireStoreData('list', 'newList', defaultListObject);
-
-            /**
-             * set defaultLists uuid into local storage
-             * need to used when refreshing application on subsquent uses
-             */
-            setItemAndValueInLocalStorage('defaultListsUuid', defaultList.id);
-        } else {
-            console.log('values already in local storage use values to update application');
-            /**
-             * intialize application state based on localstorage values
-             */
-            let a = localStorage.getItem('indexOfActiveListInSavedLists');
-            let b = localStorage.getItem('listInViewIndex');
-
-            /**
-             * set default list's id to the id create on first time use
-             */
-            let defaultList = document.getElementsByClassName("todo-list")[0];
-
-            //set id to uuid from local storage.
-            defaultList.id = getItemFromLocalStorage('defaultListsUuid');
-
-            updateListsInTodoListsArea();
-
-            //update todo in todo area
-            /**
-             * set list inView as active list
-             */
-            let savedLists = await updateUserFireStoreData('list', 'retriveListData')
-            savedLists.forEach((x, index) => {
-                if (index == getItemFromLocalStorage('listInViewIndex')) {
-                    console.log(document.getElementById(x['todoListData'].uuid));
-                    document.getElementById(x['todoListData'].uuid).click();
-                }
-            });
-        }
-    }
-
 });
 
 export { app, auth, db }
