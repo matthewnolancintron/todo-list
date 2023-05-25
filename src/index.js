@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const signInButtonContainer = document.getElementById("sign-in-buttons");
         const signOutButtonContainer = document.getElementById("sign-out-button-section")
         if (user) {// User is signed in.
-
             const { displayName, email, uid } = user;
 
             // user temporarly signed in as anonymous
@@ -122,18 +121,24 @@ document.addEventListener('DOMContentLoaded', () => {
                                 todoLists: [],
                             });
 
-                            // current issuse: the document is not showing up in firestore though?
+
                             console.log('document has been set for anonymous user');
-                            console.log('newUserRef', newUserRef)
+                            console.log('newUserRef', newUserRef);
                             console.log('uid for new user', uid);
-                            setupUI();
+
+                            
+                            localStorage.removeItem('indexOfActiveListInSavedLists');
+                            localStorage.removeItem('listInViewIndex');
+                            setupUI('sign out');
+
                         } catch (error) {
                             console.log('error setting doc', error);
                         }
                     } catch (error) {
                         console.log('error in handleSetUserName', error);
                     }
-                } else {    console.log('setupUI has been called');
+                } else {
+                    console.log('setupUI has been called');
                     setupUI();
                 }
             } else {
@@ -197,16 +202,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 let signOutButton = document.createElement('button');
                 signOutButton.innerText = 'Sign out';
 
-                //seems to be an issue when signing out.
+
                 signOutButton.addEventListener('click', () => {
                     signOut(auth).then(() => {
                         // Sign-out successful.
                         //remove signout button from display:
                         signOutButtonContainer.classList.remove('show');
                         signOutButtonContainer.classList.add('hide');
+                        console.log('sign out successful');
                     }).catch((error) => {
                         // An error happened.
-                        console.log(error);
+                        console.log(error, 'signout error');
                     });
                 });
 
@@ -216,34 +222,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 signOutButtonContainer.classList.remove('hide');
                 signOutButtonContainer.classList.add('show');
 
-                // Get a reference to the current user's document in the 'users' collection
-                const userDocRef = doc(collection(db, 'users'), uid);
+                try {
+                    // Get a reference to the current user's document in the 'users' collection
+                    const userDocRef = doc(collection(db, 'users'), uid);
 
-                const userDocSnap = await getDoc(userDocRef);
+                    const userDocSnap = await getDoc(userDocRef);
 
-                const userData = userDocSnap.data();
+                    const userData = userDocSnap.data();
 
-                console.log('user data', userData);
+                    console.log('user data', userData);
 
-                //if the todoLists data is empty
-                if (userData.todoLists.length == 0) {
-                    // Create the default list object
-                    const defaultList = document.getElementsByClassName("todo-list")[0];
-                    defaultList.id = uuidv4();
-                    const defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
+                    try {
+                        //if the todoLists data is empty
+                        if (userData.todoLists.length == 0) {
+                            // Create the default list object
+                            const defaultList = document.getElementsByClassName("todo-list")[0];
+                            defaultList.id = uuidv4();
+                            const defaultListObject = encodeTodoListElementIntoTodoListObject(defaultList);
 
-                    // Add the default list object to the user's todo data
-                    await updateDoc(userDocRef, {
-                        todoLists: arrayUnion({
-                            todoListData: defaultListObject,
-                            todoItemsData: [],
-                        }),
-                    });
+                            // Add the default list object to the user's todo data
+                            await updateDoc(userDocRef, {
+                                todoLists: arrayUnion({
+                                    todoListData: defaultListObject,
+                                    todoItemsData: [],
+                                }),
+                            });
+                        }
+
+                        setupUI();
+
+                        console.log('end of non anonymous users auth state change event');
+                    } catch (error) {
+                        console.log('error', error);
+                    }
+
+                } catch (error) {
+
                 }
 
-                setupUI();
-
-                console.log('end of non anonymous users auth state change event');
             }
         } else {// No user is signed in.
 
@@ -406,9 +422,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                         }
                                     } else {
                                         // Discard the anonymous account and sign in with the existing account
-                                        console.log("Anonymous account discarded. Signing in with the existing account...");
-                                        setupUI();
-
+                                        console.log("Anonymous account data ignored. Signing in with the existing account...");
+                                        try {
+                                            //removal of anonymous doesn't need to be handled here
+                                            // can be handled on next sign in
+                                            // await removePreviousAnonymousUserData();
+                                            // setupUI();
+                                        } catch (error) {
+                                            console.log('error with removing anonymous user', error);
+                                        }
                                     }
                                 } else {
                                     console.log("User is a new user, upgrade the anonymous account to a permanent account");
@@ -501,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             closePopUp("signUpSignIn");
 
                             // Display user info and options.
-                            handleUserInfoDisplay('show');
+                            // handleUserInfoDisplay('show');
 
                             //hide set username button if needed
                             const setUserNameButtonSection = document.getElementById("setUser-button-section");
@@ -558,33 +580,43 @@ document.addEventListener('DOMContentLoaded', () => {
             // Set the display name for the current anonymous user
             const userName = 'anonymous';
 
-            //update some of the ui
+            // update some of the ui
             // userInfoContainer.innerHTML = userName;
-
-            // Update the user's display name in Firebase Authentication
-            updateProfile(auth.currentUser, {
-                displayName: userName
-            })
-                .then(async function () {
-                    // Display name updated successfully
-                    // Retrieve the previous session ID from storage
-                    const previousSessionId = localStorage.getItem('previousSessionId');
-
-                    if (previousSessionId !== null) {
-                        // Remove the previous anonymous user data before creating a new one
-                        await removePreviousAnonymousUserData();
-                    }
-
-                    // Update the stored session ID with the current session
-                    localStorage.setItem('previousSessionId', auth.currentUser.uid);
-
-                    // Display user info and options
-                    handleUserInfoDisplay('show');
+            try {
+                // Update the user's display name in Firebase Authentication
+                await updateProfile(auth.currentUser, {
+                    displayName: userName
                 })
-                .catch((error) => {
-                    // Error updating display name
-                    console.log(error, 'updateProfile Error');
-                });
+                    .then(async function () {
+                        console.log('profile update for anonymous complete')
+                        // Display name updated successfully
+                        // Retrieve the previous session ID from storage
+                        const previousSessionId = localStorage.getItem('previousSessionId');
+
+                        try {
+                            if (previousSessionId !== null) {
+                                // Remove the previous anonymous user data before creating a new one
+                                await removePreviousAnonymousUserData();
+                            }
+                            console.log('...')
+                        } catch (error) {
+
+                        }
+
+                        // Update the stored session ID with the current session
+                        localStorage.setItem('previousSessionId', auth.currentUser.uid);
+
+                        // Display user info and options
+                        // handleUserInfoDisplay('show');
+                    })
+                    .catch((error) => {
+                        // Error updating display name
+                        console.log(error, 'updateProfile Error');
+                    });
+            } catch (error) {
+                console.log('updateProfile error', error);
+            }
+
         }
 
         return false;
