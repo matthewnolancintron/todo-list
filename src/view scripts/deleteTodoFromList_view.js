@@ -8,8 +8,6 @@ import {deleteTodoFromSavedListsArray} from './deleteTodoFromSavedListsArray_vie
 function deleteTodoFromList(todo) {
     //delete todo from savedLists array
     deleteTodoFromSavedListsArray(todo);
-
-    console.log(todo, 'todo')
     //remove from DOM
     todo.remove();
 }

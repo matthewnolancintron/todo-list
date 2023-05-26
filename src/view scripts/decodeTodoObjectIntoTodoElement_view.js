@@ -527,7 +527,7 @@ function decodeTodoObjectIntoTodoElement(todoObjectData) {
         expandTodoButton.replaceWith(collapseTodoButon);
 
         //collapse todo
-        collapseTodoButon.addEventListener('click', (e) => {
+        collapseTodoButon.addEventListener('click', async (e) => {
             //
             todoItem.classList.remove('expand-Todo');
 
@@ -546,8 +546,11 @@ function decodeTodoObjectIntoTodoElement(todoObjectData) {
             editableTodoTitleContainer.replaceWith(newTitle);
             editableTodoDueDateContainer.replaceWith(dueDate);
             editableTodoRepeatContainer.replaceWith(newerRepeat);
-
-            updateUserFireStoreData('todo-item', 'update todo', {updatedTodo: encodeTodoElementIntoTodoObjectData(todoElement)});
+            try{
+                await updateUserFireStoreData('todo-item', 'update todo', {updatedTodo: encodeTodoElementIntoTodoObjectData(todoElement)});
+            } catch(e){
+                console.log('failed to updateUserFireStoreData');
+            }
 
             /**
              * replace collapse and save with expand

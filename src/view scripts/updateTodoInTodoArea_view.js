@@ -1,4 +1,5 @@
     export {updateTodosInTodoArea};
+  import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
     import {decodeTodoObjectIntoTodoElement} from './decodeTodoObjectIntoTodoElement_view.js'
 
       /**
@@ -7,7 +8,7 @@
      */
 
     //updates the todo area when the active list is changed
-    function updateTodosInTodoArea() {
+    async function updateTodosInTodoArea() {
         let todoItems = document.getElementsByClassName("todo-items")[0].children;
         let todoItemList = document.getElementsByClassName("todo-items")[0];
         let todoItemsAtStartLength = todoItems.length;
@@ -29,11 +30,10 @@
          * by adding todos that were saved to the active list
          * in the savedLists array
          */
-        let savedLists = JSON.parse(localStorage.getItem('savedLists'));
+        let savedLists = await updateUserFireStoreData('list','retriveListData');
         savedLists.forEach((x) => {
-          console.log(x,'x')
-          if (document.getElementById(x[0].uuid).classList.contains("todo-list_activeList")) {
-            x[1].forEach((y) => {
+          if (document.getElementById(x['todoListData'].uuid).classList.contains("todo-list_activeList")) {
+            x['todoItemsData'].forEach((y) => {
               //decode todo ObjectData and append to todo area
               todoItemList.append(decodeTodoObjectIntoTodoElement(y));
             });

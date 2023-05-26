@@ -1,11 +1,20 @@
-// Allow a user that is signed in to only
-// be able to read and write to their data
-// which is stored as an object inside of a users collection:
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-      allow create,read: if request.auth != null;
+
+      // Allow read and create operations for authenticated users
+      allow create, read: if request.auth != null;
+
+      // Allow write operation only for the authenticated user
       allow write: if request.auth != null && request.auth.uid == userId;
+
+      // Allow delete operation:
+      // - For anonymous users, only if the document's displayName field is set to 'anonymous'
+      // - For non-anonymous users, only if the authenticated user's UID matches the document's userId
+      allow delete: if request.auth != null && (
+        (request.auth.token.firebase.sign_in_provider == 'anonymous' && resource.data.displayName == 'anonymous') || 
+        (request.auth.token.firebase.sign_in_provider != 'anonymous' && request.auth.uid == userId)
+      );
     }
   }
 }

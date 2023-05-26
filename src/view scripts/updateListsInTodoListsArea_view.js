@@ -3,19 +3,18 @@ import {decodeListIntoTodoListElement} from './decodeTodoListObjectIntoTodoListE
 import {addEventToTodoListsAddActive} from './addEventToTodoListsAddActive_view.js';
 import {updateOptionInPlaceInListFormField} from './updateOptionInPlaceInListFormField_view.js'
 import { updateUserFireStoreData } from '../updateUserFireStoreData.js';
+import { setListInView } from './setListInView_view.js';
 
 async function updateListsInTodoListsArea(){
     /**
      * clear default list 
      */
     document.querySelector("#todo-lists").children[0].remove();
-    console.log(document.querySelector("#todo-lists").children,'7');
 
     /**
      * clear default list option in place in list form field
      */
      updateOptionInPlaceInListFormField("removeOption", 'default list', 0);
-
 
     /**
      * loop through saved lists retrieve all the lists
@@ -23,6 +22,7 @@ async function updateListsInTodoListsArea(){
      * element or replace lists element with them
      */    
     let savedLists = await updateUserFireStoreData('list','retriveListData');
+    console.log('isSavedLists updated?', savedLists); 
 
     savedLists.forEach((x,index)=>{
         document.querySelector("#todo-lists").append(decodeListIntoTodoListElement(x['todoListData']));
@@ -33,5 +33,11 @@ async function updateListsInTodoListsArea(){
 
     //after all have been added to the dom
     addEventToTodoListsAddActive();
+
+
+
+    if(localStorage.getItem('listInViewIndex') !== null){
+        setListInView();
+    }
 
 }

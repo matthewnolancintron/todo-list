@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "todo-web-app-a7006"
-  }
+    "development": "todo-ab6e0",
+    "default": "todo-ab6e0"
+  },
+  "targets": {},
+  "etags": {}
 }

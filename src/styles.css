@@ -719,3 +719,7 @@ input:checked~.icon-box {
 .show_flex{
   display:flex;
 }
+
+#user-info{
+  color:white;
+}
