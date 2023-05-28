@@ -1,0 +1,39 @@
+name: Deploy Firebase Branch to GitHub Pages
+
+on:
+  push:
+    branches:
+      - firebase
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build app
+        run: npx webpack --production
+
+      - name: Start Firebase emulators
+        run: firebase emulators:start --import=./fireStoreEmulatorData --export-on-exit
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git checkout gh-pages
+          git rm -rf .
+          cp -R dist/* .
+          git add .
+          git commit -m "Deploy app to GitHub Pages"
+          git push origin gh-pages
