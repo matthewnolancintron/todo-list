@@ -22,7 +22,7 @@ jobs:
         run: npm ci
 
       - name: Build app
-        run: npx webpack --production
+        run: npx webpack --mode production
 
       - name: Start Firebase emulators
         run: firebase emulators:start --import=./fireStoreEmulatorData --export-on-exit
